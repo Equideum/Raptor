@@ -28,6 +28,8 @@ open class Engine {
     private let BASE_PROD_URL = "https://prodchain.fhirblocks.io/"
     private var baseUrl: String
     
+    public var k: DidDocument?
+    
     private (set) var fhirblocksVersion = "unknown"
     private (set) var isProdChain: Bool
     private (set) var myDidDoc: DidDocument? = nil
@@ -81,7 +83,7 @@ open class Engine {
         }  // end of request
     }
 
-    public func getFbDidDoc () {
+    private func getFbDidDoc () {
         NSLog("GET: fb did")
         let url: String = baseUrl+"v4/operations/did?DID=did:fb:"
            let headers: HTTPHeaders = ["Accept": "application/json"]

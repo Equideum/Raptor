@@ -9,7 +9,7 @@
 import Foundation
 import SwiftyJSON
 
-struct DidDocument  {
+public struct DidDocument  {
 
     var did: String = ""
     var service: [String: DidService] = [:]

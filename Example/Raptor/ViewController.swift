@@ -16,7 +16,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
      
         var raptor = Raptor.Engine(prodChain: false)
-        
+        raptor.k=nil
        
     }
 

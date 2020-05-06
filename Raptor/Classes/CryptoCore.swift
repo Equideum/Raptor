@@ -16,16 +16,21 @@ public enum Base58String {
 
 public class CryptoCore {
     
-    private let EC_PRIVATE_KEY_TAG = "org.fhirblocks.ecMaster"
+    private let EC_PRIVATE_KEY_TAG = "org.fhirblocks.ecMaster.priv"
+    private let EC_PUBLIC_KEY_TAG = "org.fhirblocks.ecMaster.pub"
+    private let RSA_VERIF_PRIVATE_KEY_TAG = "org.fhirblocks.rsaVerif.priv"
+    private let RSA_VERIF_PUBLIC_KEY_TAG = "org.fhirblocks.rsaVerif.pub"
     private let EC_KEY_SIZE = 256
+    private let DID_GUID_KEY = "didGuid"
     
     private (set) var didGuid: String?
     private (set)  var ecPubKeyBase58: String?
     private (set)  var rsaVerifPubKeyPem: String?
     
-    private let DID_GUID_KEY = "didGuid"
-    
-
+    private var ecPrivateKeyHandle: SecKey?
+    private var rsaVerifPrivateKeyHandle: SecKey?
+    private var ecPublicKeyRaw: SecKey?
+    private var rsaPublicKeyRaw: SecKey?
     
     init() {
         // try to load from key ring
@@ -41,12 +46,15 @@ public class CryptoCore {
     public func zeroize() {
         // remove did guid
         NSLog("removing did from keychain")
-        let removeSuccessful: Bool = KeychainWrapper.standard.removeObject(forKey: DID_GUID_KEY)
-        if (!removeSuccessful) {
-            NSLog("unable to remove DID Guid from keychain")
+        let removeDidStatus: Bool = KeychainWrapper.standard.removeObject(forKey: DID_GUID_KEY)
+        if (!removeDidStatus) {
+            NSLog("Unable to remove DID Guid from keychain")
         }
-           
-        NSLog("TODO - zeroize")
+        // remove the keys
+        let removeKeysStatus: Bool = KeychainWrapper.standard.removeAllKeys()
+        if (!removeKeysStatus) {
+            NSLog("Unable to remove keys from key chain")
+        }
     }
     
     private func getDidGuidFromKeyRing()  {
@@ -57,10 +65,10 @@ public class CryptoCore {
     }
     
     private func getEcPubKeybase58FromSecureEnclave() {
-        let ecPrivateKeyHandle = getPrivKeyHandle(keyTag: EC_PRIVATE_KEY_TAG, canDecrypt: false, keyType: kSecAttrKeyTypeEC)
+        ecPrivateKeyHandle = getPrivKeyHandle(keyTag: EC_PRIVATE_KEY_TAG, canDecrypt: false, keyType: kSecAttrKeyTypeEC)
         if (ecPrivateKeyHandle != nil) {
             // get the pub key from the priv key
-            let ecPublicKeyRaw = SecKeyCopyPublicKey(ecPrivateKeyHandle!)
+            ecPublicKeyRaw = SecKeyCopyPublicKey(ecPrivateKeyHandle!)
             if (ecPublicKeyRaw != nil) {
                 ecPubKeyBase58 = keyToDERBase58Encoded(key: ecPublicKeyRaw!)
             }
@@ -68,12 +76,21 @@ public class CryptoCore {
     }
     
     private func getRsaVerifPubKeyPemFromKeyRing() {
-        
+        rsaVerifPrivateKeyHandle = getPrivKeyHandle(keyTag: RSA_VERIF_PRIVATE_KEY_TAG, canDecrypt: false, keyType: kSecAttrKeyTypeEC)
+        if (rsaVerifPrivateKeyHandle != nil) {
+            // get the pub key from the priv key
+            rsaPublicKeyRaw = SecKeyCopyPublicKey(ecPrivateKeyHandle!)
+            if (rsaVerifPrivateKeyHandle != nil) {
+                rsaVerifPubKeyPem = convertRSAKeyToPemBase64(key: rsaPublicKeyRaw!)
+                rsaVerifPubKeyPem = rsaVerifPubKeyPem!.replacingOccurrences(of: "\n", with: "")
+            }
+        }
     }
     
     private func rekey() {
         makeDidGuid()
-        NSLog("TODO - rekey")
+        makeEcKey()
+        makeRsaVerifKey()
     }
     
     private func makeDidGuid() {
@@ -85,6 +102,93 @@ public class CryptoCore {
             NSLog("ERROR - unable to save DID guid")
             didGuid = nil
         }
+    }
+    
+    private struct Platform {
+        static let isSimulator: Bool = {
+            var isSim = false
+            #if arch(i386) || arch(x86_64)
+                isSim = true
+            #endif
+            return isSim
+        }()
+    }
+    
+    private func makeEcKey() {
+        // set up parms
+        // private key parameters
+        let privateKeyParams  = [
+            kSecAttrLabel as String: "didPriv",
+            kSecAttrIsPermanent as String: true,
+            kSecAttrApplicationTag as String: EC_PRIVATE_KEY_TAG,
+        ] as [String : Any]
+               
+        // public key parameters
+        let publicKeyParams: [String: AnyObject] = [
+            kSecAttrLabel as String: "didPub",
+            kSecAttrIsPermanent as String: true,
+            kSecAttrApplicationTag as String: EC_PUBLIC_KEY_TAG
+        ] as [String : Any] as [String : AnyObject]
+
+        // global parameters
+        var parameters: CFDictionary
+        if (Platform.isSimulator) {
+            parameters = [
+                kSecAttrKeyType as String: kSecAttrKeyTypeEC,
+                kSecAttrKeySizeInBits as String: EC_KEY_SIZE,
+                    //kSecAttrTokenID as String: kSecAttrTokenIDSecureEnclave,
+                kSecPublicKeyAttrs as String: publicKeyParams,
+                kSecPrivateKeyAttrs as String: privateKeyParams
+            ] as CFDictionary
+        } else {
+            parameters = [
+                kSecAttrKeyType as String: kSecAttrKeyTypeEC,
+                kSecAttrKeySizeInBits as String: EC_KEY_SIZE,
+                kSecAttrTokenID as String: kSecAttrTokenIDSecureEnclave,
+                kSecPublicKeyAttrs as String: publicKeyParams,
+                kSecPrivateKeyAttrs as String: privateKeyParams
+            ] as CFDictionary
+        }
+               
+        // now make the keys!
+        let status = SecKeyGeneratePair(parameters, &ecPublicKeyRaw, &ecPrivateKeyHandle)
+        NSLog("EC keygen status = \(status)")
+        let errorMsg = SecCopyErrorMessageString(status,nil)
+        NSLog ("msg decode: \(errorMsg!)")
+        NSLog ("Done with ECkey creation")
+    }
+    
+    private func makeRsaVerifKey() {
+        (rsaVerifPrivateKeyHandle, rsaPublicKeyRaw) = createRSAKey(privateTag: RSA_VERIF_PRIVATE_KEY_TAG, publicTag: RSA_VERIF_PUBLIC_KEY_TAG)
+    }
+    
+    private func createRSAKey(privateTag: String, publicTag: String) -> (SecKey?, SecKey?) {
+        let publicKeyAttr = [
+          kSecAttrIsPermanent:true as NSObject,
+          kSecAttrApplicationTag: publicTag,
+          kSecClass: kSecClassKey,
+          kSecReturnData: kCFBooleanTrue ?? true
+        ] as CFDictionary
+        
+        let privateKeyAttr  = [
+          kSecAttrIsPermanent:true as NSObject,
+          kSecAttrApplicationTag: privateTag ,
+          kSecClass: kSecClassKey,
+          kSecReturnData: kCFBooleanTrue ?? true
+        ] as CFDictionary
+        
+        let parms =  [
+          kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
+          kSecAttrKeySizeInBits as String: 2048,
+          kSecPrivateKeyAttrs as String: privateKeyAttr,
+          kSecPublicKeyAttrs as String: publicKeyAttr
+        ] as CFDictionary
+        var privateKey: SecKey?
+        var publicKey: SecKey?
+        let status = SecKeyGeneratePair (parms, &publicKey, &privateKey)
+        let errorMsg = SecCopyErrorMessageString(status, nil)!
+        NSLog ("Error msg from RSA key creation: \(errorMsg)   private tag type: \(privateTag)")
+        return (privateKey, publicKey)
     }
     
     private func getPrivKeyHandle(keyTag: String, canDecrypt: Bool, keyType: CFString ) -> SecKey! {
@@ -124,6 +228,14 @@ public class CryptoCore {
         return publicKeyDerKeyString
       }
 
+    private func convertRSAKeyToPemBase64(key: SecKey) -> String {
+      // converting public key to DER format
+      var error: Unmanaged<CFError>?
+      let publicKeyDataAPI = SecKeyCopyExternalRepresentation(key, &error)! as Data
+      let exportImportManager = CryptoExportImportManager.init()
+      let exportableDERKey = exportImportManager.exportPublicKeyToPEM((publicKeyDataAPI as NSData) as Data, keyType: kSecAttrKeyTypeRSA as String, keySize: 2048)
+      return exportableDERKey!
+    }
 }
 
 public extension String {
