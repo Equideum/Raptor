@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'Raptor_Example' do
+  pod 'Raptor', :path => '../'
+
+  target 'Raptor_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
