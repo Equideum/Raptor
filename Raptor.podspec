@@ -41,4 +41,5 @@ TODO: Add long description of the pod here.
   s.dependency 'Alamofire', '~> 5.1.0'
   s.dependency 'SwiftyJSON', '~> 5.0.0'
   s.dependency 'SwiftKeychainWrapper', '~> 3.4.0'
+  s.dependency 'BigInt', '~> 3.1.0'
 end

@@ -7,6 +7,12 @@
 
 import Foundation
 import SwiftKeychainWrapper
+import BigInt
+
+public enum Base58String {
+    public static let btcAlphabet = [UInt8]("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".utf8)
+    public static let flickrAlphabet = [UInt8]("123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ".utf8)
+}
 
 public class CryptoCore {
     
@@ -18,6 +24,8 @@ public class CryptoCore {
     private (set)  var rsaVerifPubKeyPem: String?
     
     private let DID_GUID_KEY = "didGuid"
+    
+
     
     init() {
         // try to load from key ring
@@ -106,12 +114,38 @@ public class CryptoCore {
       }
     
     private func keyToDERBase58Encoded(key: SecKey) -> String {
-          var error: Unmanaged<CFError>?
-          let publicKeyDataAPI = SecKeyCopyExternalRepresentation(key, &error)! as Data
-          let exportImportManager = CryptoExportImportManager.init()
-          let exportableDERKey = exportImportManager.exportPublicKeyToDER((publicKeyDataAPI as NSData) as Data, keyType: kSecAttrKeyTypeEC as String, keySize: EC_KEY_SIZE)
-          let publicKeyDerKeyString = String(base58Encoding: exportableDERKey!)
-          NSLog("Base58 Encoded string: \(publicKeyDerKeyString)")
-          return publicKeyDerKeyString
+        var error: Unmanaged<CFError>?
+        let publicKeyDataAPI = SecKeyCopyExternalRepresentation(key, &error)! as Data
+        let exportImportManager = CryptoExportImportManager.init()
+        let exportableDERKey = exportImportManager.exportPublicKeyToDER((publicKeyDataAPI as NSData) as Data, keyType: kSecAttrKeyTypeEC as String, keySize: EC_KEY_SIZE)
+        let publicKeyDerKeyString = String(base58Encoding: exportableDERKey!)
+        //let publicKeyDerKeyString = ""
+        NSLog("Base58 Encoded string: \(publicKeyDerKeyString)")
+        return publicKeyDerKeyString
       }
+
+}
+
+public extension String {
+
+    public init(base58Encoding bytes: Data, alphabet: [UInt8] = Base58String.btcAlphabet) {
+        var x = BigUInt(bytes)
+        let radix = BigUInt(alphabet.count)
+
+        var answer = [UInt8]()
+        answer.reserveCapacity(bytes.count)
+
+        while x > 0 {
+            let (quotient, modulus) = x.quotientAndRemainder(dividingBy: radix)
+            answer.append(alphabet[Int(modulus)])
+            x = quotient
+        }
+
+        let prefix = Array(bytes.prefix(while: {$0 == 0})).map { _ in alphabet[0] }
+        answer.append(contentsOf: prefix)
+        answer.reverse()
+
+        self = String(bytes: answer, encoding: String.Encoding.utf8)!
+    }
+
 }

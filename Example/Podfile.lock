@@ -1,31 +1,50 @@
 PODS:
   - Alamofire (5.1.0)
+  - Base58String (0.1.0):
+    - BigInt (~> 3.1)
+  - BigInt (3.1.0):
+    - SipHash (~> 1.2)
   - Raptor (0.1.0):
     - Alamofire (~> 5.1.0)
+    - BigInt (~> 3.1.0)
     - SwiftKeychainWrapper (~> 3.4.0)
     - SwiftyJSON (~> 5.0.0)
+  - SipHash (1.2.2)
   - SwiftKeychainWrapper (3.4.0)
   - SwiftyJSON (5.0.0)
 
 DEPENDENCIES:
+  - Base58String (from `https://github.com/keefertaylor/Base58String.git`)
   - Raptor (from `../`)
 
 SPEC REPOS:
   trunk:
     - Alamofire
+    - BigInt
+    - SipHash
     - SwiftKeychainWrapper
     - SwiftyJSON
 
 EXTERNAL SOURCES:
+  Base58String:
+    :git: https://github.com/keefertaylor/Base58String.git
   Raptor:
     :path: "../"
 
+CHECKOUT OPTIONS:
+  Base58String:
+    :commit: 1bcb719d16662abc546adb22614a08094ed29467
+    :git: https://github.com/keefertaylor/Base58String.git
+
 SPEC CHECKSUMS:
   Alamofire: 9d5c5f602928e512395b30950c5984eca840093c
-  Raptor: 693d35e2829339d0a03a8b1deb4fd611146a8e00
+  Base58String: a12a7d574e00d07c5f58ff5b7adf7f1353a32a44
+  BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
+  Raptor: da3c739c4d765d651546aa6d5f7536ec7fe76d31
+  SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
   SwiftKeychainWrapper: 6fc49fbf7d4a6b0772917acb0e53a1639f6078d6
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
 
-PODFILE CHECKSUM: c950aa6aa1cc1c192deed16604224c85f17498f7
+PODFILE CHECKSUM: 6020ff96d9929d15647659ad0b19088aab7d4d13
 
 COCOAPODS: 1.9.1

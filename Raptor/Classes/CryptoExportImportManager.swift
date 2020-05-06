@@ -84,7 +84,7 @@ private let kCryptoExportImportManagerPublicNumberOfCharactersInALine = 64
  * As far as I know, any other way of importing and using public keys from the outside is not
  * advised: https://devforums.apple.com/message/301532#301532
  */
-class CryptoExportImportManager:  NSObject   {
+public class CryptoExportImportManager:  NSObject   {
   // MARK: - Import methods.
   
   /**
