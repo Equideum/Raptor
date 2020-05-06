@@ -76,7 +76,7 @@ public class CryptoCore {
     }
     
     private func getRsaVerifPubKeyPemFromKeyRing() {
-        rsaVerifPrivateKeyHandle = getPrivKeyHandle(keyTag: RSA_VERIF_PRIVATE_KEY_TAG, canDecrypt: false, keyType: kSecAttrKeyTypeEC)
+        rsaVerifPrivateKeyHandle = getPrivKeyHandle(keyTag: RSA_VERIF_PRIVATE_KEY_TAG, canDecrypt: false, keyType: kSecAttrKeyTypeRSA)
         if (rsaVerifPrivateKeyHandle != nil) {
             // get the pub key from the priv key
             rsaPublicKeyRaw = SecKeyCopyPublicKey(ecPrivateKeyHandle!)
@@ -160,6 +160,7 @@ public class CryptoCore {
     
     private func makeRsaVerifKey() {
         (rsaVerifPrivateKeyHandle, rsaPublicKeyRaw) = createRSAKey(privateTag: RSA_VERIF_PRIVATE_KEY_TAG, publicTag: RSA_VERIF_PUBLIC_KEY_TAG)
+        getRsaVerifPubKeyPemFromKeyRing()
     }
     
     private func createRSAKey(privateTag: String, publicTag: String) -> (SecKey?, SecKey?) {

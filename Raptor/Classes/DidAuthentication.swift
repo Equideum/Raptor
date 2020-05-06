@@ -4,12 +4,12 @@
 //  Copyright © 2020 tom danner. All rights reserved.
 //
 
-struct DidAuthentication {
+public struct DidAuthentication {
 
-    var id: String? = ""
-    var type: String? = ""
-    var controller:  String? = ""
-    var publicKeyPem: String? = ""
+    public var id: String? = ""
+    public var type: String? = ""
+    public var controller:  String? = ""
+    public var publicKeyPem: String? = ""
 
     
     public func toJSONString() -> String {

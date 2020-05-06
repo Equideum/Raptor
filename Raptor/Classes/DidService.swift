@@ -10,9 +10,9 @@
 
 public struct DidService{
 
-    var id:String=""
-    var type: String=""
-    var serviceEndpoint: String=""
+    public var id:String=""
+    public var type: String=""
+    public var serviceEndpoint: String=""
     
     
    

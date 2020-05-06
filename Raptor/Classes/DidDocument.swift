@@ -11,11 +11,11 @@ import SwiftyJSON
 
 public struct DidDocument  {
 
-    var did: String = ""
-    var service: [String: DidService] = [:]
-    var authentication: [String: DidAuthentication] = [:]
-    var name: String = ""
-    var active: Bool = false
+    public var did: String = ""
+    public var service: [String: DidService] = [:]
+    public var authentication: [String: DidAuthentication] = [:]
+    public var name: String = ""
+    public var active: Bool = false
     
 
     
