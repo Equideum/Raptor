@@ -25,6 +25,9 @@
     ],
     "SwiftyJSON": [
       "~> 5.0.0"
+    ],
+    "SwiftKeychainWrapper": [
+      "~> 3.4.0"
     ]
   }
 }
