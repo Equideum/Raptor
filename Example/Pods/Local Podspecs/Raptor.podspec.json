@@ -1,0 +1,30 @@
+{
+  "name": "Raptor",
+  "version": "0.1.0",
+  "summary": "A short sds of Raptor.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/downthefallline/Raptor",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "downthefallline": "tom.danner@gmail.com"
+  },
+  "source": {
+    "git": "https://github.com/downthefallline/Raptor.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "13.0"
+  },
+  "source_files": "Raptor/Classes/**/*",
+  "dependencies": {
+    "Alamofire": [
+      "~> 5.1.0"
+    ],
+    "SwiftyJSON": [
+      "~> 5.0.0"
+    ]
+  }
+}

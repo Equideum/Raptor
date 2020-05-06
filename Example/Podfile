@@ -1,6 +1,7 @@
 use_frameworks!
 
 target 'Raptor_Example' do
+  platform :ios, '13.0'
   pod 'Raptor', :path => '../'
 
   target 'Raptor_Tests' do

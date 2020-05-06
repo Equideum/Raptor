@@ -1,0 +1,6 @@
+framework module Raptor {
+  umbrella header "Raptor-umbrella.h"
+
+  export *
+  module * { export * }
+}
