@@ -8,8 +8,6 @@
 
 import UIKit
 import Raptor
-import Alamofire
-import SwiftyJSON
 
 
 class ViewController: UIViewController {
@@ -17,7 +15,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        let k = Raptor.Engine();
+       
     }
 
     override func didReceiveMemoryWarning() {
