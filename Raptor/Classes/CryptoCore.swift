@@ -56,6 +56,37 @@ public class CryptoCore {
             NSLog("Unable to remove keys from key chain")
         }
     }
+
+    /*
+     Signs the message string and returns a signature element
+     */
+    public func sign (message: String) -> String? {
+        let signedData = signMessageForData(privateKey: ecPrivateKey!, message: message)
+        let encodedStrg = signedData?.base64EncodedString()
+        if (encodedStrg==nil) {
+            NSLog("Signing ceremony produced nil")
+            return nil
+        } else {
+            let finalAnswer = base64ToBase64url(base64: encodedStrg!)
+            return finalAnswer
+        }
+    }
+    
+    private func signMessageForData(privateKey:SecKey, message: String) -> Data? {
+        let algorithm = SecKeyAlgorithm.ecdsaSignatureMessageX962SHA256;
+        let canSign = SecKeyIsAlgorithmSupported(privateKey, SecKeyOperationType.sign, algorithm)
+        if(canSign) {
+            let data = message.data(using: String.Encoding.utf8)!
+            var error: Unmanaged<CFError>?
+            guard let signedData = SecKeyCreateSignature(privateKey, algorithm, data as CFData, &error) as Data? else {
+                NSLog("this key type cannot sign messages")
+                return nil
+            }
+         return signedData
+       } else {
+            return nil
+       }
+     }
     
     private func getDidGuidFromKeyRing()  {
         self.didGuid = KeychainWrapper.standard.string(forKey: DID_GUID_KEY)

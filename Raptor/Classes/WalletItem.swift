@@ -15,7 +15,10 @@ public class WalletItem {
     private var rawCredential: String
     
     
-    public init() {}
+    public init() {
+        jsonCredential = JSON()
+        rawCredential = ""
+    }
     
     public func getJsonCredential() -> JSON {
         return self.getJsonCredential()
