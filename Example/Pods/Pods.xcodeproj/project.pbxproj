@@ -16,6 +16,7 @@
 		08281777D479CF46F0E0F24753E01A63 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD363340257A2C1EEAF913CAD5D9454 /* Request.swift */; };
 		08BFA5A828C0002C7384575BDC422FC3 /* Raptor-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A1B187331B4167FFE6303B98E1C5FA /* Raptor-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0B40B12547C2A3D53408637D87E55621 /* SwiftKeychainWrapper-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = C31235B84F462AF5944BB1291A6B21D4 /* SwiftKeychainWrapper-dummy.m */; };
+		0B89A93124647E82000835D6 /* WalletItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B89A93024647E82000835D6 /* WalletItem.swift */; };
 		0BC72CFF2463126D000164C0 /* TrustedIssuer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BC72CFE2463126D000164C0 /* TrustedIssuer.swift */; };
 		0C714F6CA1AD71E033070DC8B5AE15B5 /* Primitive Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6285363E1A1781B74CB0CF4C4CEF784C /* Primitive Types.swift */; };
 		0FF6A3BBA9E9DAAE2E741513546FC4B6 /* Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2134CEA1B18A4256BD9CCBD159AEDAB2 /* Validation.swift */; };
@@ -223,6 +224,7 @@
 		027D2CE21EA983B37D5244BD8C91AA1E /* Base58String-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Base58String-prefix.pch"; sourceTree = "<group>"; };
 		03FAC1F766549328E9B41F21A7612142 /* Data Conversion.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Data Conversion.swift"; path = "sources/Data Conversion.swift"; sourceTree = "<group>"; };
 		0920CAF0D64F753B3708621DCE3DA3B7 /* SipHash.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = SipHash.modulemap; sourceTree = "<group>"; };
+		0B89A93024647E82000835D6 /* WalletItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletItem.swift; path = Raptor/Classes/WalletItem.swift; sourceTree = "<group>"; };
 		0BC72CFE2463126D000164C0 /* TrustedIssuer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TrustedIssuer.swift; path = Raptor/Classes/TrustedIssuer.swift; sourceTree = "<group>"; };
 		0D8B8074A8E7907FC32B685A9A515E36 /* BigInt.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = BigInt.modulemap; sourceTree = "<group>"; };
 		0E31B37220010F87A87518BCB40309CA /* URLConvertible+URLRequestConvertible.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "URLConvertible+URLRequestConvertible.swift"; path = "Source/URLConvertible+URLRequestConvertible.swift"; sourceTree = "<group>"; };
@@ -811,6 +813,7 @@
 				E5D43A2764D4EF48AB893FAF7E16F99B /* Engine.swift */,
 				0BC72CFE2463126D000164C0 /* TrustedIssuer.swift */,
 				7215AAE53D123DF7EED9129EEC51C5C3 /* ReplaceMe.swift */,
+				0B89A93024647E82000835D6 /* WalletItem.swift */,
 				55FC1491A93733D5AD3455ADE31E7622 /* Pod */,
 				8E552E164C2F9AF4E53211AF3E73B766 /* Support Files */,
 			);
@@ -1269,6 +1272,7 @@
 				DA6512AAAFD92EFA9860ED84C3A308B9 /* Alamofire.swift in Sources */,
 				AA8023C0CFE561DB8B8D92232C6125B1 /* AlamofireExtended.swift in Sources */,
 				E4E727DD13DA225D574D9880D9CB7348 /* CachedResponseHandler.swift in Sources */,
+				0B89A93124647E82000835D6 /* WalletItem.swift in Sources */,
 				433815428539A3F818A385B0EFEFB8DC /* DispatchQueue+Alamofire.swift in Sources */,
 				DA07C0CDF1B0FBC959A4406DE142A081 /* EventMonitor.swift in Sources */,
 				85E10F2E2F0044C1ACE78F76395F9077 /* HTTPHeaders.swift in Sources */,

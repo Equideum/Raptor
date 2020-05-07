@@ -88,6 +88,43 @@ open class Engine {
         cryptoCore.zeroize()
     }
     
+    public func fetchVerifiableCredentialsFromIssuerWithCalypso(issuerDid: String) {
+        NSLog("TO DO - Fetch VC using calypso")
+    }
+    
+    
+    public func getTrustedDidDocuments(wot: String) -> [DidDocument] {
+        let resp: [DidDocument] = []
+        return resp
+    }
+    
+    public func addCredentialToWallet (rawCredential: String) {
+        NSLog("TODO - add credential")
+    }
+    
+    public func getWalletItemByCredentialId (credentialId: String) -> WalletItem? {
+        NSLog("TODO - get wallet item by credential id")
+        let k = WalletItem()
+        return k
+    }
+    
+    public func getTrustedAuthenticationEndPoints() -> [String: String] {
+        NSLog("TODO - getTrustedAuthenticationEndPoints")
+        let k: [String : String] = [:]
+        return k
+    }
+    
+    public func isWalletEmpty() -> Bool {
+        NSLog("TODO - is wallet empty")
+        return true
+    }
+    
+    public func getWallet() -> [String: [String: WalletItem]] {
+        NSLog("TODO - get wallet")
+        let k:[String: [String: WalletItem]]  = [ : ]
+        return k
+    }
+    
     /*
         INTERACTIONS W DID METHOD GO HERE
         */
