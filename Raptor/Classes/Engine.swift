@@ -74,7 +74,12 @@ open class Engine {
     public func getState () -> String {
         var resp: String  = ""
         for x in state! {
-            resp = resp + x.value + ","
+            if x.value != "ready" {
+                resp = resp + x.value + ","
+            }
+        }
+        if resp == "" {
+            resp = "Ready for Action"
         }
         return resp
     }
@@ -149,7 +154,7 @@ open class Engine {
             case .success(let value):
                 let code = response.response?.statusCode ?? 0
                 if code == 200 {
-                    self.state!["ping"]="Got FB Version!"
+                    self.state!["ping"]="ready"
                     let resp = JSON(value)
                     self.fhirblocksVersion = resp["version"].string ?? "Unknown"
                 } else {
@@ -176,7 +181,7 @@ open class Engine {
             case .success(let value):
                 let code = response.response?.statusCode ?? 0
                 if (code == 200) {
-                    self.state!["fbDid"]="Got FB Did!"
+                    self.state!["fbDid"]="ready"
                     let didDocJson = JSON(value)
                     self.fbDidDoc = DidDocument(jsonRepresentation: didDocJson)
                 } else {
@@ -205,9 +210,9 @@ open class Engine {
                 switch response.result {
                 case .success(let value):
                     if code == 200 {
-                        self.state!["myDid"]="Got My Did!"
                         let didDocJson = JSON(value)
                         self.myDidDoc = DidDocument(jsonRepresentation: didDocJson)
+                        self.state!["myDid"]="ready"
                     } else {
                         self.state!["myDid"]="FB Did Error"
                         self.networkFailed=true;
@@ -216,12 +221,13 @@ open class Engine {
                 case .failure (let error):
                     if code == 404 {  // DID was not on file, we need to create it
                         self.createDid()
+                    } else {
+                        let msg = error.localizedDescription
+                        NSLog(msg)
+                        self.state!["myDid"]="FB Did Error"
+                        self.networkFailed=true;
+                        Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getMyDidDocFromChain), userInfo: nil, repeats: false)
                     }
-                    let msg = error.localizedDescription
-                    NSLog(msg)
-                    self.state!["myDid"]="FB Did Error"
-                    self.networkFailed=true;
-                    Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getMyDidDocFromChain), userInfo: nil, repeats: false)
                 } // end of switch
             }  // end of response
         }
@@ -233,7 +239,7 @@ open class Engine {
             PRIVATE WORKER METHODS
     */
     
-    private func createDid() {
+    @objc private func createDid() {
         self.state!["makeDid"] = "Creating DID"
         NSLog("Creating a new DID Document from DID \(cryptoCore.didGuid!)")
         
@@ -269,10 +275,37 @@ open class Engine {
         // and initiate sending it
         
         self.state!["makeDid"] = "sending DID to Blockchain"
+  
+        NSLog("POST: did")
+        let message = didPackage.toJSONString()
+        let dataMessage = (message.data(using: .utf8))! as Data
+            let url = baseUrl+"v4/operations/did"
+            var request = URLRequest(url: URL(string: url)!)
+            request.httpMethod = HTTPMethod.post.rawValue
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
+            request.httpBody = dataMessage
+           
+            AF.request(request).responseJSON{ response in
+                let code: Int = response.response?.statusCode ?? 0
+                switch response.result {
+                case .success:
+                    if code == 201 {
+                        self.state!["myDid"]="DID Created"
+                    } else {
+                        self.state!["myDid"]="DID create error"
+                        Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createDid), userInfo: nil, repeats: false)
+                    }
+                case .failure (let error):
+                    let msg = error.localizedDescription
+                    NSLog(msg)
+                    self.state!["myDid"]="DID create error"
+                    Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createDid), userInfo: nil, repeats: false)
+                }  // end of switch
+            } // end of response
+    }  // end of func
         
-        //fbDidApi.postDid(didPackage: didPackage)
-        
-    }
+    
     
   
     
@@ -282,9 +315,9 @@ open class Engine {
           proof.type="Ed25519Signature2018"
           proof.created = dateString
           proof.creator = cryptoCore.didGuid!+"#key-1"
-          proof.capability=cryptoCore.didGuid!
-          proof.capabilityAction="registerDID"
-          proof.proofPurpose="invokeCapability"
+          proof.capability = cryptoCore.didGuid!
+          proof.capabilityAction = "registerDID"
+          proof.proofPurpose = "invokeCapability"
           proof.jws = makeJWS(didDoc: didDoc)
           
           return proof

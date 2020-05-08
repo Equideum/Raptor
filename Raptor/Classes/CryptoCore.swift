@@ -61,7 +61,7 @@ public class CryptoCore {
      Signs the message string and returns a signature element
      */
     public func sign (message: String) -> String? {
-        let signedData = signMessageForData(privateKey: ecPrivateKey!, message: message)
+        let signedData = signMessageForData(privateKey: ecPrivateKeyHandle!, message: message)
         let encodedStrg = signedData?.base64EncodedString()
         if (encodedStrg==nil) {
             NSLog("Signing ceremony produced nil")
@@ -191,7 +191,6 @@ public class CryptoCore {
     
     private func makeRsaVerifKey() {
         (rsaVerifPrivateKeyHandle, rsaPublicKeyRaw) = createRSAKey(privateTag: RSA_VERIF_PRIVATE_KEY_TAG, publicTag: RSA_VERIF_PUBLIC_KEY_TAG)
-        getRsaVerifPubKeyPemFromKeyRing()
     }
     
     private func createRSAKey(privateTag: String, publicTag: String) -> (SecKey?, SecKey?) {
@@ -267,6 +266,14 @@ public class CryptoCore {
       let exportImportManager = CryptoExportImportManager.init()
       let exportableDERKey = exportImportManager.exportPublicKeyToPEM((publicKeyDataAPI as NSData) as Data, keyType: kSecAttrKeyTypeRSA as String, keySize: 2048)
       return exportableDERKey!
+    }
+    
+    private func base64ToBase64url(base64: String) -> String {
+        let base64url = base64
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+        return base64url
     }
 }
 

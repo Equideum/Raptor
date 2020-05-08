@@ -18,6 +18,7 @@ class ViewController: UIViewController {
     
     @objc private func updateState() {
         state.text = raptor.getState()
+        didGuidLabel.text = raptor.getMyDidDoc()?.did
     }
     
     override func viewDidLoad() {
@@ -29,7 +30,15 @@ class ViewController: UIViewController {
        NotificationCenter.default.addObserver(self, selector: #selector(updateState), name: NSNotification.Name(rawValue: RaptorStateUpdate), object: nil)
     }
 
+    @IBAction func zeroizeClicked(_ sender: Any) {
+        let k = raptor.getMyDidDoc()?.did
+        print("DD")
+        raptor.autoDestruct()
+    }
+    
     @IBOutlet weak var state: UILabel!
+    
+    @IBOutlet var didGuidLabel: UILabel!
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
