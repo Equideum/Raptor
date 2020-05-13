@@ -33,7 +33,7 @@ class IssuerVCPresentViewController: UIViewController {
            return nil
        }
 
-    @IBOutlet var QRCode: UIImageView!
+    @IBOutlet  var QRCode: UIImageView!
     
 
 }

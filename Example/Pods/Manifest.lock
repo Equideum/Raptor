@@ -9,9 +9,13 @@ PODS:
     - BigInt (~> 3.1.0)
     - SwiftKeychainWrapper (~> 3.4.0)
     - SwiftyJSON (~> 5.0.0)
+    - SwiftyRSA
   - SipHash (1.2.2)
   - SwiftKeychainWrapper (3.4.0)
   - SwiftyJSON (5.0.0)
+  - SwiftyRSA (1.5.0):
+    - SwiftyRSA/ObjC (= 1.5.0)
+  - SwiftyRSA/ObjC (1.5.0)
 
 DEPENDENCIES:
   - Base58String (from `https://github.com/keefertaylor/Base58String.git`)
@@ -24,6 +28,7 @@ SPEC REPOS:
     - SipHash
     - SwiftKeychainWrapper
     - SwiftyJSON
+    - SwiftyRSA
 
 EXTERNAL SOURCES:
   Base58String:
@@ -40,10 +45,11 @@ SPEC CHECKSUMS:
   Alamofire: 9d5c5f602928e512395b30950c5984eca840093c
   Base58String: a12a7d574e00d07c5f58ff5b7adf7f1353a32a44
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
-  Raptor: da3c739c4d765d651546aa6d5f7536ec7fe76d31
+  Raptor: 58ac94f2fe0fb4a48890cce35c46b553d66d5d6c
   SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
   SwiftKeychainWrapper: 6fc49fbf7d4a6b0772917acb0e53a1639f6078d6
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
+  SwiftyRSA: 6e528fb1b1a87d5111c48081083b141d6d65f1cf
 
 PODFILE CHECKSUM: 6020ff96d9929d15647659ad0b19088aab7d4d13
 

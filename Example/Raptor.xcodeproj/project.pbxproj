@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B1D02B52465CAF2000816F8 /* ScanMyCSIDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D02B42465CAF2000816F8 /* ScanMyCSIDViewController.swift */; };
+		0B1D02B72465D47A000816F8 /* ScanMyNewTestResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D02B62465D47A000816F8 /* ScanMyNewTestResultViewController.swift */; };
+		0B1D02B92465DA1E000816F8 /* TestSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D02B82465DA1E000816F8 /* TestSummaryViewController.swift */; };
 		0B7615E32464E1C70074D964 /* CSIDScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B7615E22464E1C60074D964 /* CSIDScannerViewController.swift */; };
 		0B7615E52464F4F80074D964 /* TestResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B7615E42464F4F80074D964 /* TestResultsViewController.swift */; };
 		0B7615E92464FD1D0074D964 /* IssuerVCPresentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B7615E82464FD1D0074D964 /* IssuerVCPresentViewController.swift */; };
@@ -31,6 +34,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0B1D02B42465CAF2000816F8 /* ScanMyCSIDViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMyCSIDViewController.swift; sourceTree = "<group>"; };
+		0B1D02B62465D47A000816F8 /* ScanMyNewTestResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMyNewTestResultViewController.swift; sourceTree = "<group>"; };
+		0B1D02B82465DA1E000816F8 /* TestSummaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSummaryViewController.swift; sourceTree = "<group>"; };
 		0B7615E22464E1C60074D964 /* CSIDScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSIDScannerViewController.swift; sourceTree = "<group>"; };
 		0B7615E42464F4F80074D964 /* TestResultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestResultsViewController.swift; sourceTree = "<group>"; };
 		0B7615E82464FD1D0074D964 /* IssuerVCPresentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuerVCPresentViewController.swift; sourceTree = "<group>"; };
@@ -108,6 +114,9 @@
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
+				0B1D02B42465CAF2000816F8 /* ScanMyCSIDViewController.swift */,
+				0B1D02B62465D47A000816F8 /* ScanMyNewTestResultViewController.swift */,
+				0B1D02B82465DA1E000816F8 /* TestSummaryViewController.swift */,
 			);
 			name = "Example for Raptor";
 			path = Raptor;
@@ -330,6 +339,7 @@
 				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftKeychainWrapper/SwiftKeychainWrapper.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyRSA/SwiftyRSA.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -340,6 +350,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftKeychainWrapper.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyRSA.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -355,9 +366,12 @@
 			files = (
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
+				0B1D02B52465CAF2000816F8 /* ScanMyCSIDViewController.swift in Sources */,
 				0B7615E32464E1C70074D964 /* CSIDScannerViewController.swift in Sources */,
 				0B7615E52464F4F80074D964 /* TestResultsViewController.swift in Sources */,
 				0B7615E92464FD1D0074D964 /* IssuerVCPresentViewController.swift in Sources */,
+				0B1D02B72465D47A000816F8 /* ScanMyNewTestResultViewController.swift in Sources */,
+				0B1D02B92465DA1E000816F8 /* TestSummaryViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -505,12 +519,15 @@
 			baseConfigurationReference = 928270CFCCD95EABFD8D0379 /* Pods-Raptor_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CURRENT_PROJECT_VERSION = 23;
 				DEVELOPMENT_TEAM = 636L2P48DR;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Raptor/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.fhirblocks.whistler;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};
@@ -521,11 +538,15 @@
 			baseConfigurationReference = 40D5ED7606AF1EEF229C791C /* Pods-Raptor_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CURRENT_PROJECT_VERSION = 23;
 				DEVELOPMENT_TEAM = 636L2P48DR;
+				ENABLE_BITCODE = NO;
+				ENABLE_TESTABILITY = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				INFOPLIST_FILE = Raptor/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.fhirblocks.whistler;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;

@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "cartoon-animal-eagle-png-clipart-animal-animal-clipart-cartoon-cartoon-eagle-png-650_592.jpg",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "cartoon-animal-eagle-png-clipart-animal-animal-clipart-cartoon-cartoon-eagle-png-650_592-1.jpg",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "cartoon-animal-eagle-png-clipart-animal-animal-clipart-cartoon-cartoon-eagle-png-650_592-2.jpg",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

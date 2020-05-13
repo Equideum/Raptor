@@ -25,35 +25,46 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="State" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p5J-2L-MF4">
-                                <rect key="frame" x="167.5" y="331" width="40.5" height="21"/>
+                                <rect key="frame" x="167.5" y="286" width="40.5" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="30R-2y-K7P" userLabel="Zeroize">
-                                <rect key="frame" x="136.5" y="181.5" width="102" height="30"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DID Guid" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bzz-8b-TzG" userLabel="DidGuid">
+                                <rect key="frame" x="162.5" y="236.5" width="50.5" height="14.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yx0-jL-iTw" userLabel="Raptor Label">
+                                <rect key="frame" x="73.5" y="156.5" width="228" height="30"/>
+                                <state key="normal" title="Powered by Raptor Engine Works">
+                                    <color key="titleColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="zeroizeClicked:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="gzL-SD-hPx"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="30R-2y-K7P" userLabel="Zeroize">
+                                <rect key="frame" x="136" y="369" width="102" height="30"/>
                                 <state key="normal" title="Zeroize Device"/>
                                 <connections>
                                     <action selector="zeroizeClicked:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Yjg-PI-Fg0"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DID Guid" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bzz-8b-TzG" userLabel="DidGuid">
-                                <rect key="frame" x="162.5" y="286.5" width="50.5" height="14.5"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="p5J-2L-MF4" firstAttribute="top" secondItem="bzz-8b-TzG" secondAttribute="bottom" constant="30" id="545-Kj-r0L"/>
-                            <constraint firstItem="p5J-2L-MF4" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="GTZ-Je-IuR"/>
-                            <constraint firstItem="RBB-cK-F1O" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="HQn-BM-ckf"/>
-                            <constraint firstItem="bzz-8b-TzG" firstAttribute="top" secondItem="30R-2y-K7P" secondAttribute="bottom" constant="75" id="JF8-m1-G2M"/>
-                            <constraint firstItem="30R-2y-K7P" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="JKN-7v-o1y"/>
-                            <constraint firstItem="30R-2y-K7P" firstAttribute="top" secondItem="RBB-cK-F1O" secondAttribute="bottom" constant="75" id="Oee-tW-t9V"/>
-                            <constraint firstItem="bzz-8b-TzG" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="X9M-a6-bHU"/>
-                            <constraint firstItem="RBB-cK-F1O" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="75" id="sBs-Jt-AlG"/>
+                            <constraint firstItem="yx0-jL-iTw" firstAttribute="top" secondItem="RBB-cK-F1O" secondAttribute="bottom" constant="50" id="4T9-pS-l8M"/>
+                            <constraint firstItem="bzz-8b-TzG" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="IQN-l0-mHe"/>
+                            <constraint firstItem="RBB-cK-F1O" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="Lb6-Ue-3xB"/>
+                            <constraint firstItem="bzz-8b-TzG" firstAttribute="top" secondItem="yx0-jL-iTw" secondAttribute="bottom" constant="50" id="XHF-Rb-0Cw"/>
+                            <constraint firstItem="RBB-cK-F1O" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="75" id="Z5R-gf-s88"/>
+                            <constraint firstItem="p5J-2L-MF4" firstAttribute="top" secondItem="bzz-8b-TzG" secondAttribute="bottom" constant="35" id="fdM-lX-x18"/>
+                            <constraint firstItem="30R-2y-K7P" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="tKr-tW-4pS"/>
+                            <constraint firstItem="30R-2y-K7P" firstAttribute="top" secondItem="yx0-jL-iTw" secondAttribute="bottom" constant="150" id="vtE-a7-tMr"/>
+                            <constraint firstItem="yx0-jL-iTw" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="vuh-cT-jGk"/>
+                            <constraint firstItem="p5J-2L-MF4" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="ywI-rA-bU5"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Utilities" image="hammer" catalog="system" id="zrg-L2-7BC"/>
@@ -64,7 +75,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1050" y="-47"/>
+            <point key="canvasLocation" x="1048.8" y="-47.226386806596707"/>
         </scene>
         <!--Issuer-->
         <scene sceneID="tcv-Hd-uEH">
@@ -282,10 +293,10 @@
             </objects>
             <point key="canvasLocation" x="1049" y="1544"/>
         </scene>
-        <!--View Controller-->
+        <!--Scan MyCSID View Controller-->
         <scene sceneID="09T-Ze-nV7">
             <objects>
-                <viewController id="tkW-M9-e59" sceneMemberID="viewController">
+                <viewController id="tkW-M9-e59" customClass="ScanMyCSIDViewController" customModule="Raptor_Example" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="NpP-np-MUU"/>
                         <viewControllerLayoutGuide type="bottom" id="0Cp-uz-Hez"/>
@@ -323,15 +334,18 @@
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                     </view>
+                    <connections>
+                        <outlet property="QRCode" destination="fML-EA-im9" id="OGN-Hr-3KR"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fga-ec-cMj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1938" y="1543"/>
         </scene>
-        <!--View Controller-->
+        <!--Scan My New Test Result View Controller-->
         <scene sceneID="6n6-1K-kNp">
             <objects>
-                <viewController id="S3x-De-hoc" sceneMemberID="viewController">
+                <viewController id="S3x-De-hoc" customClass="ScanMyNewTestResultViewController" customModule="Raptor_Example" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="9sG-tT-bXW"/>
                         <viewControllerLayoutGuide type="bottom" id="XHv-eS-SF3"/>
@@ -356,20 +370,41 @@
             </objects>
             <point key="canvasLocation" x="2806" y="1543"/>
         </scene>
-        <!--View Controller-->
+        <!--Test Summary View Controller-->
         <scene sceneID="WAA-Im-drM">
             <objects>
-                <viewController id="Luz-4N-mdX" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="TestSummaryViewController" id="Luz-4N-mdX" customClass="TestSummaryViewController" customModule="Raptor_Example" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Ql4-lN-Wn9"/>
                         <viewControllerLayoutGuide type="bottom" id="pQk-DJ-EOf"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="91i-Y3-uOW">
+                    <view key="view" contentMode="scaleToFill" restorationIdentifier="TestSummaryViewController" id="91i-Y3-uOW">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U1s-Cr-gbv">
-                                <rect key="frame" x="136" y="43" width="42" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="My Test Results" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U1s-Cr-gbv">
+                                <rect key="frame" x="136" y="43" width="121" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Date of Test:  01/23/2021" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W4H-4F-w7h">
+                                <rect key="frame" x="37" y="96" width="193" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Test Location:  CVS 123 Main St" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uww-sc-1On">
+                                <rect key="frame" x="37" y="156" width="243" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Test Type:   Antibody" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="30R-ox-Yy1">
+                                <rect key="frame" x="37" y="225" width="161" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
@@ -383,6 +418,13 @@
                                     <segue destination="LhF-ol-YyP" kind="presentation" id="GaV-Gk-0Fu"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Results:   Positive" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r28-9j-4gQ">
+                                <rect key="frame" x="37" y="289" width="134" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                     </view>
@@ -425,6 +467,7 @@
                 <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="TUO-mF-yjh" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="AvR-PZ-EBY">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
@@ -441,7 +484,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="SJU-m5-hhp"/>
+        <segue reference="CaQ-ik-lNw"/>
         <segue reference="GaV-Gk-0Fu"/>
         <segue reference="kVg-tr-G8M"/>
     </inferredMetricsTieBreakers>

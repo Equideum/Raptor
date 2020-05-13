@@ -36,6 +36,7 @@ open class Engine {
     private (set) var fhirblocksVersion = "unknown"
     private (set) var isProdChain: Bool
     private (set) var myDidDoc: DidDocument? = nil
+    private (set) var agentDidDoc: DidDocument?  = nil
     private (set) var state: [String: String]? {
           didSet {
               NotificationCenter.default.post(name: NSNotification.Name(rawValue: RaptorStateUpdate), object:nil)
@@ -64,11 +65,14 @@ open class Engine {
         state!["ping"]="Need Ping"
         state!["fbDid"]="Need fbDid"
         state!["myDid"]="Need myDid"
+        state!["agentDid"]="Need agentDid"
+        state!["idns"]="Need IDN List"
 
         getFHIRBlocksVersionNumber()
         getFbDidDoc()
         getMyDidDocFromChain()
-        
+        getAgentDidFromChain()
+        getIDNListFromChain()
     }
 
     public func getState () -> String {
@@ -200,7 +204,7 @@ open class Engine {
     }
     
     @objc private func getMyDidDocFromChain ()  {
-        if let guid = cryptoCore.didGuid {
+        if let guid = cryptoCore.identityDidGuid {
             self.state!["myDid"]="Reading My Did"
             NSLog("GET: my did")
             let url: String = baseUrl+"v4/operations/did?DID="+guid
@@ -220,7 +224,7 @@ open class Engine {
                     }
                 case .failure (let error):
                     if code == 404 {  // DID was not on file, we need to create it
-                        self.createDid()
+                        self.createIdentityDid()
                     } else {
                         let msg = error.localizedDescription
                         NSLog(msg)
@@ -233,37 +237,71 @@ open class Engine {
         }
     }
 
+    @objc private func getAgentDidDocFromChain ()  {
+           if let guid = cryptoCore.agentDidGuid {
+               self.state!["agentDid"]="Reading Agent Did"
+               NSLog("GET: agent did")
+               let url: String = baseUrl+"v4/operations/did?DID="+guid
+               let headers: HTTPHeaders = ["Accept": "application/json"]
+               AF.request(url, headers: headers).responseJSON { response in
+                   let code: Int = response.response?.statusCode ?? 0
+                   switch response.result {
+                   case .success(let value):
+                       if code == 200 {
+                           let didDocJson = JSON(value)
+                           self.agentDidDoc = DidDocument(jsonRepresentation: didDocJson)
+                           self.state!["agentDid"]="ready"
+                       } else {
+                           self.state!["agentDid"]="FB Did Error"
+                           self.networkFailed=true;
+                           Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getMyDidDocFromChain), userInfo: nil, repeats: false)
+                       }
+                   case .failure (let error):
+                       if code == 404 {  // DID was not on file, we need to create it
+                           self.createAgentDid()
+                       } else {
+                           let msg = error.localizedDescription
+                           NSLog(msg)
+                           self.state!["agentDid"]="FB Did Error"
+                           self.networkFailed=true;
+                           Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getMyDidDocFromChain), userInfo: nil, repeats: false)
+                       }
+                   } // end of switch
+               }  // end of response
+           }
+       }
+    
     
     
     /*
             PRIVATE WORKER METHODS
     */
     
-    @objc private func createDid() {
-        self.state!["makeDid"] = "Creating DID"
-        NSLog("Creating a new DID Document from DID \(cryptoCore.didGuid!)")
+    @objc private func createIdentityDid() {
+        self.state!["myDid"] = "Creating DID"
+        NSLog("Creating a new DID Document from DID \(cryptoCore.identityDidGuid!)")
         
         var auth = DidAuthentication()
-        auth.id = cryptoCore.didGuid!+"#key-1"
-        auth.controller = cryptoCore.didGuid
-        auth.publicKeyPem = cryptoCore.ecPubKeyBase58
+        auth.id = cryptoCore.identityDidGuid!+"#key-1"
+        auth.controller = cryptoCore.identityDidGuid
+        auth.publicKeyPem = cryptoCore.identityECPubKeyBase58
         auth.type = "ED25519VERIFICATIONKEY2018"
         
         var rsaVerificationAuth = DidAuthentication()
-        rsaVerificationAuth.id = cryptoCore.didGuid!+"#key-2"
-        rsaVerificationAuth.controller = cryptoCore.didGuid
+        rsaVerificationAuth.id = cryptoCore.identityDidGuid!+"#key-2"
+        rsaVerificationAuth.controller = cryptoCore.identityDidGuid
         rsaVerificationAuth.publicKeyPem =  cryptoCore.rsaVerifPubKeyPem
         rsaVerificationAuth.type = "RSAVERIFICATIONKEY2018"
         
         self.myDidDoc = DidDocument()
-        self.myDidDoc?.did = cryptoCore.didGuid!
+        self.myDidDoc?.did = cryptoCore.identityDidGuid!
         self.myDidDoc?.service = [:]
         self.myDidDoc?.active = true
         self.myDidDoc?.name = ""
         self.myDidDoc?.authentication[auth.id!] = auth
         self.myDidDoc?.authentication[rsaVerificationAuth.id!] = rsaVerificationAuth
         
-        let proof = makeProof(didDoc: self.myDidDoc!)
+        let proof = makeProof(didDoc: self.myDidDoc!, didToUse: CryptoCore.DIDSelector.useIdentityDid)
         
         // now make up the Did Package
         var didPackage = DidPackage()
@@ -274,7 +312,7 @@ open class Engine {
         
         // and initiate sending it
         
-        self.state!["makeDid"] = "sending DID to Blockchain"
+        self.state!["myDid"] = "sending DID to Blockchain"
   
         NSLog("POST: did")
         let message = didPackage.toJSONString()
@@ -288,42 +326,115 @@ open class Engine {
            
             AF.request(request).responseJSON{ response in
                 let code: Int = response.response?.statusCode ?? 0
+                if code == 201 {
+                    self.state!["myDid"]="ready"
+                    return
+                }
                 switch response.result {
                 case .success:
                     if code == 201 {
                         self.state!["myDid"]="DID Created"
                     } else {
                         self.state!["myDid"]="DID create error"
-                        Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createDid), userInfo: nil, repeats: false)
+                        Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createIdentityDid), userInfo: nil, repeats: false)
                     }
                 case .failure (let error):
                     let msg = error.localizedDescription
                     NSLog(msg)
                     self.state!["myDid"]="DID create error"
-                    Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createDid), userInfo: nil, repeats: false)
+                    Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createIdentityDid), userInfo: nil, repeats: false)
                 }  // end of switch
             } // end of response
     }  // end of func
         
+    @objc private func createAgentDid() {
+          self.state!["agentDid"] = "Creating Agent DID"
+        NSLog("Creating a new Agent DID Document from DID \(cryptoCore.agentDidGuid!)")
+          
+          var auth = DidAuthentication()
+          auth.id = cryptoCore.agentDidGuid!+"#key-1"
+          auth.controller = cryptoCore.agentDidGuid
+          auth.publicKeyPem = cryptoCore.agentECPubKeyBase58
+          auth.type = "ED25519VERIFICATIONKEY2018"
+          
+          self.agentDidDoc = DidDocument()
+          self.agentDidDoc?.did = cryptoCore.agentDidGuid!
+          self.agentDidDoc?.service = [:]
+          self.agentDidDoc?.active = true
+          self.agentDidDoc?.name = ""
+          self.agentDidDoc?.authentication[auth.id!] = auth
+          
+          // safe pt
+          let proof = makeProof(didDoc: self.agentDidDoc!, didToUse: CryptoCore.DIDSelector.useAgentDid)
+          
+          // now make up the Did Package
+          var didPackage = DidPackage()
+          didPackage.context = "https://w3id.org/fhirblocks/v4"
+          didPackage.type = "ED25519VERIFICATIONKEY2018"
+          didPackage.record = self.agentDidDoc
+          didPackage.proof = proof
+          
+          // and initiate sending it
+          
+          self.state!["agentDid"] = "sending Agent DID to Blockchain"
     
+          NSLog("POST: did")
+          let message = didPackage.toJSONString()
+          let dataMessage = (message.data(using: .utf8))! as Data
+              let url = baseUrl+"v4/operations/did"
+              var request = URLRequest(url: URL(string: url)!)
+              request.httpMethod = HTTPMethod.post.rawValue
+              request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+              request.setValue("application/json", forHTTPHeaderField: "Accept")
+              request.httpBody = dataMessage
+             
+              AF.request(request).responseJSON{ response in
+                  let code: Int = response.response?.statusCode ?? 0
+                  if code == 201 {
+                      self.state!["agentDid"]="ready"
+                      return
+                  }
+                  switch response.result {
+                  case .success:
+                      if code == 201 {
+                          self.state!["agentDid"]="DID Created"
+                      } else {
+                          self.state!["agentDid"]="DID create error"
+                          Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createAgentDid), userInfo: nil, repeats: false)
+                      }
+                  case .failure (let error):
+                      let msg = error.localizedDescription
+                      NSLog(msg)
+                      self.state!["agentDid"]="DID create error"
+                      Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createAgentDid), userInfo: nil, repeats: false)
+                  }  // end of switch
+              } // end of response
+      }  // end of func
+          
     
   
     
-    private func makeProof(didDoc: DidDocument) -> Proof {
-          let dateString = Date().iso8601withFractionalSeconds
-          var proof = Proof()
-          proof.type="Ed25519Signature2018"
-          proof.created = dateString
-          proof.creator = cryptoCore.didGuid!+"#key-1"
-          proof.capability = cryptoCore.didGuid!
-          proof.capabilityAction = "registerDID"
-          proof.proofPurpose = "invokeCapability"
-          proof.jws = makeJWS(didDoc: didDoc)
+    private func makeProof(didDoc: DidDocument, didToUse: CryptoCore.DIDSelector) -> Proof {
+        var didGuidToUse: String
+            if didToUse == CryptoCore.DIDSelector.useAgentDid {
+                didGuidToUse = self.agentDidDoc!.did
+            } else {
+                didGuidToUse = self.myDidDoc!.did
+            }
+            let dateString = Date().iso8601withFractionalSeconds
+            var proof = Proof()
+            proof.type="Ed25519Signature2018"
+            proof.created = dateString
+            proof.creator = didGuidToUse+"#key-1"
+            proof.capability = didGuidToUse
+            proof.capabilityAction = "registerDID"
+            proof.proofPurpose = "invokeCapability"
+            proof.jws = makeJWS(didDoc: didDoc, didToUse: didToUse)
           
-          return proof
+            return proof
       }
     
-    private func makeJWS(didDoc: DidDocument) -> String {
+    private func makeJWS(didDoc: DidDocument, didToUse: CryptoCore.DIDSelector) -> String {
         var body = didDoc.toJSONString()
         var header = "{\"alg\":\"EdDSA\",\"b64\":true,\"crit\":[\"b64\"]}"
         
@@ -331,8 +442,15 @@ open class Engine {
         header = header.toBase64()
         
         let payload = header+"."+body
-        var sig = cryptoCore.sign(message: payload)
+        var sig = cryptoCore.sign(message: payload, whichDid: didToUse)
         return payload+"."+sig!
+    }
+    
+    private func getAgentDidFromChain() {
+    }
+    
+    private func getIDNListFromChain() {
+        
     }
     
 }
