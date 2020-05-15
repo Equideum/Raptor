@@ -14,6 +14,17 @@ public class WalletCore {
     
     public init() {}
     
+    public func getWalletItemByCredentialId (credentialId: String) -> WalletItem? {
+        for issuerWallet in wallet {
+            for walletItem in issuerWallet.value {
+                if walletItem.value.getId() == credentialId {
+                    return walletItem.value
+                }
+            }
+        }
+        return nil
+    }
+    
     public func  addBase64EncodedJWC(base64JWC: String) {
         do {
             let walletItem = try WalletItem (jwc: base64JWC)

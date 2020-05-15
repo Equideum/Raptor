@@ -77,10 +77,40 @@ public class CryptoCore {
         }
 
         // remove the keys
-        let removeKeysStatus: Bool = KeychainWrapper.standard.removeAllKeys()
-        if (!removeKeysStatus) {
-            NSLog("Unable to remove keys from key chain")
+        let identityECPrivKeyStatus =   deleteKey(keyTag: IDENTITY_EC_PRIVATE_KEY_TAG, keyType: kSecAttrKeyTypeEC as String)
+        if (!identityECPrivKeyStatus) {
+            NSLog ("unable to remove key - ec priv indentity")
         }
+        let identityECPubKeyStatus =    deleteKey(keyTag: IDENTITY_EC_PUBLIC_KEY_TAG, keyType: kSecAttrKeyTypeEC as String)
+        if (!identityECPubKeyStatus) {
+            NSLog ("unable to remove key - ec pub indentity")
+        }
+        let agentECPrivKeyStatus =      deleteKey(keyTag: AGENT_EC_PRIVATE_KEY_TAG, keyType: kSecAttrKeyTypeEC as String)
+        if (!agentECPrivKeyStatus) {
+            NSLog ("unable to remove key - ec priv agent")
+        }
+        let agentECPubKeyStatus =       deleteKey(keyTag: AGENT_EC_PUBLIC_KEY_TAG, keyType: kSecAttrKeyTypeEC as String)
+        if (!agentECPrivKeyStatus) {
+            NSLog ("unable to remove key - ec pub agent")
+        }
+        let rsaVerifPrivKeyStatus =     deleteKey(keyTag: RSA_VERIF_PRIVATE_KEY_TAG, keyType: kSecAttrKeyTypeRSA as String)
+        if (!rsaVerifPrivKeyStatus) {
+            NSLog ("unable to remove key - rsa priv agent")
+        }
+        let rsaVerifPubKeyStatus =      deleteKey(keyTag: RSA_VERIF_PUBLIC_KEY_TAG, keyType: kSecAttrKeyTypeRSA as String)
+        if (!rsaVerifPubKeyStatus) {
+            NSLog ("unable to remove key - rsa pub agent")
+        }
+        
+        identityECPrivateKeyHandle = nil
+        agentECPrivateKeyHandle = nil
+        rsaVerifPrivateKeyHandle = nil
+        identityECPublicKeyRaw = nil
+        agentECPublicKeyRaw = nil
+        rsaPublicKeyRaw = nil
+        
+        NSLog("TODO - remove list of rsa keys for digi signing")
+        
     }
 
     /*
@@ -104,6 +134,19 @@ public class CryptoCore {
         }
     }
     
+    private func deleteKey(keyTag: String, keyType: String) -> Bool {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassKey,
+            kSecAttrApplicationTag as String: keyTag.data(using: .utf8)!,
+            kSecAttrKeyType as String: keyType,
+            kSecReturnRef as String: true,
+            kSecAttrCanSign as String: true
+        ]
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else { return false }
+        return true
+    }
+    
     private func signMessageForData(privateKey: SecKey, message: String) -> Data? {
         let algorithm = SecKeyAlgorithm.ecdsaSignatureMessageX962SHA256;
         let canSign = SecKeyIsAlgorithmSupported(privateKey, SecKeyOperationType.sign, algorithm)
@@ -123,14 +166,18 @@ public class CryptoCore {
     private func getIdentityDidGuidFromKeyRing()  {
         self.identityDidGuid = KeychainWrapper.standard.string(forKey: IDENTITY_DID_GUID_KEY)
         if (self.identityDidGuid == nil) {
-            NSLog("DID GUID not found")
+            NSLog("DID Guid not found")
+        } else {
+            NSLog("Identity DID Guid recovered from keychain")
         }
     }
     
     private func getAgentDidGuidFromKeyRing()  {
         self.agentDidGuid = KeychainWrapper.standard.string(forKey: AGENT_DID_GUID_KEY)
         if (self.agentDidGuid == nil) {
-            NSLog("Agent DID GUID not found")
+            NSLog("Agent DID Guid not found")
+        } else {
+            NSLog("Agent DID Guid recovered from keyschain")
         }
     }
     
@@ -142,6 +189,7 @@ public class CryptoCore {
             identityECPublicKeyRaw = SecKeyCopyPublicKey(identityECPrivateKeyHandle!)
             if (identityECPublicKeyRaw != nil) {
                 identityECPubKeyBase58 = keyToDERBase58Encoded(key: identityECPublicKeyRaw!)
+                NSLog("Identity Key Recovered from Keychain")
             }
         }
     }
@@ -153,6 +201,7 @@ public class CryptoCore {
               agentECPublicKeyRaw = SecKeyCopyPublicKey(agentECPrivateKeyHandle!)
               if (agentECPublicKeyRaw != nil) {
                   agentECPubKeyBase58 = keyToDERBase58Encoded(key: agentECPublicKeyRaw!)
+                  NSLog("Agent Key Recovered from Keychain")
               }
           }
       }
@@ -166,6 +215,7 @@ public class CryptoCore {
             if (rsaVerifPrivateKeyHandle != nil) {
                 rsaVerifPubKeyPem = convertRSAKeyToPemBase64(key: rsaPublicKeyRaw!)
                 rsaVerifPubKeyPem = rsaVerifPubKeyPem!.replacingOccurrences(of: "\n", with: "")
+                NSLog("RSA Verification Key recovered from Keychain")
             }
         }
     }
@@ -254,6 +304,9 @@ public class CryptoCore {
         NSLog("EC keygen status = \(status)")
         let errorMsg = SecCopyErrorMessageString(status,nil)
         NSLog ("msg decode: \(errorMsg!)")
+        
+        identityECPubKeyBase58 = keyToDERBase58Encoded(key: identityECPublicKeyRaw!)
+        
         NSLog ("Done with Identity ECkey creation")
     }
     
@@ -298,11 +351,16 @@ public class CryptoCore {
            NSLog("EC keygen status = \(status)")
            let errorMsg = SecCopyErrorMessageString(status,nil)
            NSLog ("msg decode: \(errorMsg!)")
+        
+           agentECPubKeyBase58 = keyToDERBase58Encoded(key: agentECPublicKeyRaw!)
+    
            NSLog ("Done with Agent ECkey creation")
        }
     
     private func makeRsaVerifKey() {
         (rsaVerifPrivateKeyHandle, rsaPublicKeyRaw) = createRSAKey(privateTag: RSA_VERIF_PRIVATE_KEY_TAG, publicTag: RSA_VERIF_PUBLIC_KEY_TAG)
+        rsaVerifPubKeyPem = convertRSAKeyToPemBase64(key: rsaPublicKeyRaw!)
+        rsaVerifPubKeyPem = rsaVerifPubKeyPem?.replacingOccurrences(of: "\n", with: "")
     }
     
     private func createRSAKey(privateTag: String, publicTag: String) -> (SecKey?, SecKey?) {
@@ -375,7 +433,7 @@ public class CryptoCore {
 
     // go back to that old way since we saw a defect in key names!
     
-    
+    /*
     private func convertRSAKeyToPemBase64(key: SecKey) -> String {
       // converting public key to DER format
       var error: Unmanaged<CFError>?
@@ -384,23 +442,20 @@ public class CryptoCore {
       let exportableDERKey = exportImportManager.exportPublicKeyToPEM((publicKeyDataAPI as NSData) as Data, keyType: kSecAttrKeyTypeRSA as String, keySize: 2048)
       return exportableDERKey!
     }
- 
+ */
 
-    /*
+   
     private func convertRSAKeyToPemBase64 (key: SecKey) -> String? {
         do {
-            let kp = try SwiftyRSA.generateRSAKeyPair(sizeInBits: 2048)
-            let pub = kp.publicKey
-            //let tempKey = try PublicKey(reference: pub)
-            let pem = try pub.pemString()
-            print(pem)
+            let pubKey = try PublicKey (reference: key)
+            let pem: String = try pubKey.pemString()
             return pem
         } catch {
             print("error occurred")
-            return nil
+            return ""
         }
     }
-    */
+   
     
     private func base64ToBase64url(base64: String) -> String {
         let base64url = base64
@@ -413,7 +468,7 @@ public class CryptoCore {
 
 public extension String {
 
-    public init(base58Encoding bytes: Data, alphabet: [UInt8] = Base58String.btcAlphabet) {
+    init(base58Encoding bytes: Data, alphabet: [UInt8] = Base58String.btcAlphabet) {
         var x = BigUInt(bytes)
         let radix = BigUInt(alphabet.count)
 

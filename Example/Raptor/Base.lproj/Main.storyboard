@@ -180,7 +180,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Generate Verifiable Credential"/>
                                 <connections>
-                                    <segue destination="GsG-tc-fnT" kind="presentation" id="oFF-ag-hUe"/>
+                                    <action selector="generateVCClicked:" destination="ta8-yV-Z7a" eventType="touchUpInside" id="O5e-Cr-5yH"/>
                                 </connections>
                             </button>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="caq-Ap-MrW">
@@ -212,7 +212,7 @@
                         <viewControllerLayoutGuide type="bottom" id="mmE-VD-CWs"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" restorationIdentifier="IssuerVCPresnetViewController" id="DWi-Dp-p8n">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Heres Your Covid Verifiable Credential" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a98-AE-BaO">
@@ -283,6 +283,9 @@
                                 <rect key="frame" x="97" y="251" width="195" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Display Latest COVID Status"/>
+                                <connections>
+                                    <segue destination="old-VY-YRg" kind="presentation" id="e5T-px-Pwx"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
@@ -292,6 +295,49 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jZ3-Rb-kFA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1049" y="1544"/>
+        </scene>
+        <!--Scan My Covid Status View Controller-->
+        <scene sceneID="pqD-Kg-3gG">
+            <objects>
+                <viewController storyboardIdentifier="ScanMyCovidStatusViewController" id="old-VY-YRg" customClass="ScanMyCovidStatusViewController" customModule="Raptor_Example" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="rNl-4f-5Sf"/>
+                        <viewControllerLayoutGuide type="bottom" id="YyK-zD-XX2"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="XPh-Un-l1g">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="16P-fj-Iwv">
+                                <rect key="frame" x="42" y="93" width="240" height="252"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="My COVID Status" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qW4-45-ZyW">
+                                <rect key="frame" x="90" y="44" width="133" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6vw-47-I4d">
+                                <rect key="frame" x="139" y="363" width="34" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Back"/>
+                                <connections>
+                                    <action selector="backHit:" destination="old-VY-YRg" eventType="touchUpInside" id="h95-hS-zQo"/>
+                                    <segue destination="LhF-ol-YyP" kind="presentation" id="SMe-Lv-WPV"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    </view>
+                    <connections>
+                        <outlet property="qrCode" destination="16P-fj-Iwv" id="dTh-CE-VLS"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="r8C-Dm-LIS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1661.5999999999999" y="2228.6356821589206"/>
         </scene>
         <!--Scan MyCSID View Controller-->
         <scene sceneID="09T-Ze-nV7">
@@ -459,7 +505,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OBC-Vd-2l0" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1038" y="2244"/>
+            <point key="canvasLocation" x="730" y="2255"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="noZ-ba-f8e">
@@ -484,8 +530,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="CaQ-ik-lNw"/>
-        <segue reference="GaV-Gk-0Fu"/>
+        <segue reference="SMe-Lv-WPV"/>
         <segue reference="kVg-tr-G8M"/>
     </inferredMetricsTieBreakers>
     <resources>

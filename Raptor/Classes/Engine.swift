@@ -28,6 +28,12 @@ open class Engine {
         case signedAndTrusted
     }
     
+    public enum VerifiableCredentialCreationError: Error {
+        case issuerMustEqualRaptorIdentifier
+        case mustContainSubject
+        case mustContainId
+    }
+    
     private let BASE_TEST_URL = "https://cmt.fhirblocks.io/"
     private let BASE_PROD_URL = "https://prodchain.fhirblocks.io/"
     
@@ -51,6 +57,8 @@ open class Engine {
     private let cryptoCore: CryptoCore = CryptoCore()
     private var fbDidDoc: DidDocument = DidDocument()
     private var trustWeb: [String: [String: TrustedIssuer]] = [:]
+    private let walletCore: WalletCore = WalletCore()
+    private var imprimateurJWCs: [String: String] = [ : ]
     
     public init(prodChain: Bool) {
         self.isProdChain = prodChain
@@ -68,10 +76,12 @@ open class Engine {
         state!["agentDid"]="Need agentDid"
         state!["idns"]="Need IDN List"
 
+        loadImprimateurs()
+        
         getFHIRBlocksVersionNumber()
         getFbDidDoc()
-        getMyDidDocFromChain()
-        getAgentDidFromChain()
+        getIdentityDidDocFromChain()
+        getAgentDidDocFromChain()
         getIDNListFromChain()
     }
 
@@ -92,14 +102,15 @@ open class Engine {
         return self.myDidDoc
     }
     
+    public func getAgentDidDoc() -> DidDocument? {
+        return self.agentDidDoc
+    }
+    
     public func autoDestruct() {
         NSLog("ACTIVATING AUTO DESTRUCT")
         cryptoCore.zeroize()
     }
     
-    public func fetchVerifiableCredentialsFromIssuerWithCalypso(issuerDid: String) {
-        NSLog("TO DO - Fetch VC using calypso")
-    }
     
     
     public func getTrustedDidDocuments(wot: String) -> [DidDocument] {
@@ -107,16 +118,61 @@ open class Engine {
         return resp
     }
     
-    public func addCredentialToWallet (rawCredential: String) {
-        NSLog("TODO - add credential")
+    public func addCredentialToWallet (jwc: String) {
+        walletCore.addBase64EncodedJWC(base64JWC: jwc)
     }
     
     public func getWalletItemByCredentialId (credentialId: String) -> WalletItem? {
-        NSLog("TODO - get wallet item by credential id")
-        let k = WalletItem()
+        let k = walletCore.getWalletItemByCredentialId(credentialId: credentialId)
         return k
     }
     
+    public func createCredentialAsJWC(claims: JSON) throws -> String {  // returns a base64 encoded JWC
+        // you can only issue from the identity did
+        if myDidDoc?.did != claims["iss"].string {
+            throw  VerifiableCredentialCreationError.issuerMustEqualRaptorIdentifier
+        }
+        if claims["sub"].string == nil {
+            throw VerifiableCredentialCreationError.mustContainSubject
+        }
+        if claims["id"].string == nil {
+            throw VerifiableCredentialCreationError.mustContainId
+        }
+        let header = createJWCHeader()
+        
+        let body = claims.rawString()?.toBase64()
+        let payload = header+"."+body!
+        let sig = cryptoCore.sign(message: payload, whichDid: CryptoCore.DIDSelector.useIdentityDid)
+        let jwc = payload+"."+sig!
+        return jwc
+    }
+    
+    /*
+        this allows raptor to create VCs for other off platform dids and requires a imprimateur from that did
+     */
+    public func createPresentation(jwcs:  [String], imprimateurJwc: String, onBehalfOfDidGuid: String) -> String? {
+        
+        let epochTime = NSDate().timeIntervalSince1970
+        
+        var resp = JSON()
+        resp["iss"].string = agentDidDoc?.did
+        resp["sub"].string = onBehalfOfDidGuid
+        resp["dt"].double = epochTime
+        resp["imp"].string = imprimateurJwc
+        resp["creds"].arrayObject = jwcs
+    
+        let header = createJWCHeader()
+        let body = resp.rawString()?.toBase64()
+        let payload = header+"."+body!
+        let sig = cryptoCore.sign(message: payload, whichDid: CryptoCore.DIDSelector.useAgentDid)
+        let r = payload+"."+sig!
+        return r
+    }
+
+    public func fetchVerifiableCredentialsFromIssuerWithCalypso(issuerDid: String) {
+        NSLog("TO DO - Fetch VC using calypso")
+    }
+
     public func getTrustedAuthenticationEndPoints() -> [String: String] {
         NSLog("TODO - getTrustedAuthenticationEndPoints")
         let k: [String : String] = [:]
@@ -143,6 +199,17 @@ open class Engine {
     
     public func addDocumentSigningCert (walletItem: WalletItem) throws {
         NSLog("TODO - addDocumentSigningCert")
+    }
+    
+    
+    public func getImprimateurJWC(onBehalfOfDidGuid: String) -> String? {
+        let x = imprimateurJWCs[onBehalfOfDidGuid]
+        return x
+    }
+    
+    public func addImprimateurJWC(onBehalfOfDidGuid: String, imprimateurVC: String) {
+        imprimateurJWCs[onBehalfOfDidGuid] = imprimateurVC
+        saveImprimateurs()
     }
     
     /*
@@ -203,7 +270,7 @@ open class Engine {
         }
     }
     
-    @objc private func getMyDidDocFromChain ()  {
+    @objc private func getIdentityDidDocFromChain ()  {
         if let guid = cryptoCore.identityDidGuid {
             self.state!["myDid"]="Reading My Did"
             NSLog("GET: my did")
@@ -220,7 +287,7 @@ open class Engine {
                     } else {
                         self.state!["myDid"]="FB Did Error"
                         self.networkFailed=true;
-                        Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getMyDidDocFromChain), userInfo: nil, repeats: false)
+                        Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getIdentityDidDocFromChain), userInfo: nil, repeats: false)
                     }
                 case .failure (let error):
                     if code == 404 {  // DID was not on file, we need to create it
@@ -230,7 +297,7 @@ open class Engine {
                         NSLog(msg)
                         self.state!["myDid"]="FB Did Error"
                         self.networkFailed=true;
-                        Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getMyDidDocFromChain), userInfo: nil, repeats: false)
+                        Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getIdentityDidDocFromChain), userInfo: nil, repeats: false)
                     }
                 } // end of switch
             }  // end of response
@@ -254,7 +321,7 @@ open class Engine {
                        } else {
                            self.state!["agentDid"]="FB Did Error"
                            self.networkFailed=true;
-                           Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getMyDidDocFromChain), userInfo: nil, repeats: false)
+                           Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getAgentDidDocFromChain), userInfo: nil, repeats: false)
                        }
                    case .failure (let error):
                        if code == 404 {  // DID was not on file, we need to create it
@@ -264,14 +331,78 @@ open class Engine {
                            NSLog(msg)
                            self.state!["agentDid"]="FB Did Error"
                            self.networkFailed=true;
-                           Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getMyDidDocFromChain), userInfo: nil, repeats: false)
+                           Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getAgentDidDocFromChain), userInfo: nil, repeats: false)
                        }
                    } // end of switch
                }  // end of response
            }
        }
     
-    
+    @objc private func getIDNListFromChain() {
+          NSLog("GET: IDN List")
+          self.state!["idns"]="Reading IDNs"
+          let url: String = baseUrl + "v4/operations/idn"
+          let headers: HTTPHeaders = ["Accept": "application/json"]
+          AF.request(url, headers: headers).responseJSON { response in
+              switch response.result {
+              case .success(let value):
+                  let code = response.response?.statusCode ?? 0
+                  if code == 200 {
+                      self.state!["idns"]="ready"
+                      let resp = JSON(value)
+                      for idnDidGuid in resp.array! {
+                        self.getIdnDidDoc(idnDidGuid: idnDidGuid.string!)
+                      }
+                  } else {
+                      self.state!["idns"]="IDNs Error"
+                      self.networkFailed=true;
+                      Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getIDNListFromChain), userInfo: nil, repeats: false)
+                  }
+              case .failure (let error):
+                  NSLog(error.localizedDescription)
+                  self.state!["idns"]="IDNs Error"
+                  self.networkFailed = true
+                  Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getIDNListFromChain), userInfo: nil, repeats: false)
+              }  // end of switch
+          }  // end of request
+    }
+      
+    @objc private func getIdnDidDoc (idnDidGuid: String) {
+        NSLog("Fetching did doc for idn \(idnDidGuid)")
+        NSLog("GET: IDN did")
+        let url: String = baseUrl+"v4/operations/did?DID="+idnDidGuid
+        let headers: HTTPHeaders = ["Accept": "application/json"]
+        AF.request(url, headers: headers).responseJSON { response in
+            let code: Int = response.response?.statusCode ?? 0
+            switch response.result {
+            case .success(let value):
+                if code == 200 {
+                    let didDocJson = JSON(value)
+                    var trustedIssuer = TrustedIssuer();
+                    trustedIssuer.name = didDocJson["name"].string!
+                    trustedIssuer.didDoc = DidDocument (jsonRepresentation: didDocJson)
+                    var trustedIdns = self.trustWeb["idns"]
+                    if trustedIdns == nil {
+                        trustedIdns = [ : ]
+                    }
+                    trustedIdns![idnDidGuid]=trustedIssuer
+                    self.trustWeb["idns"]=trustedIdns
+                } else {
+                    self.networkFailed=true;
+                    Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getIdnDidDoc), userInfo: nil, repeats: false)
+                }
+            case .failure (let error):
+                if code == 404 {  // DID was not on file, we need to create it
+                    NSLog ("Trusted did is not found on the blockchain")
+                } else {
+                    let msg = error.localizedDescription
+                    NSLog(msg)
+                    self.networkFailed=true;
+                    Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getIdnDidDoc), userInfo: nil, repeats: false)
+                }
+            } // end of switch
+        }  // end of response
+    }
     
     /*
             PRIVATE WORKER METHODS
@@ -280,6 +411,12 @@ open class Engine {
     @objc private func createIdentityDid() {
         self.state!["myDid"] = "Creating DID"
         NSLog("Creating a new DID Document from DID \(cryptoCore.identityDidGuid!)")
+        
+        if (cryptoCore.identityECPubKeyBase58 == nil) || (cryptoCore.rsaVerifPubKeyPem == nil)  {
+                NSLog("Identity EC Pub Key not present - stall wait ")
+                Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createIdentityDid), userInfo: nil, repeats: false)
+                return
+        }
         
         var auth = DidAuthentication()
         auth.id = cryptoCore.identityDidGuid!+"#key-1"
@@ -293,6 +430,7 @@ open class Engine {
         rsaVerificationAuth.publicKeyPem =  cryptoCore.rsaVerifPubKeyPem
         rsaVerificationAuth.type = "RSAVERIFICATIONKEY2018"
         
+ 
         self.myDidDoc = DidDocument()
         self.myDidDoc?.did = cryptoCore.identityDidGuid!
         self.myDidDoc?.service = [:]
@@ -314,7 +452,7 @@ open class Engine {
         
         self.state!["myDid"] = "sending DID to Blockchain"
   
-        NSLog("POST: did")
+        NSLog("POST: identity did")
         let message = didPackage.toJSONString()
         let dataMessage = (message.data(using: .utf8))! as Data
             let url = baseUrl+"v4/operations/did"
@@ -349,8 +487,15 @@ open class Engine {
         
     @objc private func createAgentDid() {
           self.state!["agentDid"] = "Creating Agent DID"
-        NSLog("Creating a new Agent DID Document from DID \(cryptoCore.agentDidGuid!)")
+          NSLog("Creating a new Agent DID Document from DID \(cryptoCore.agentDidGuid!)")
           
+          if (cryptoCore.agentECPubKeyBase58 == nil) {
+                    NSLog("Agent RC Pub Key not present - stall wait ")
+                    Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createIdentityDid), userInfo: nil, repeats: false)
+                return
+            }
+            
+        
           var auth = DidAuthentication()
           auth.id = cryptoCore.agentDidGuid!+"#key-1"
           auth.controller = cryptoCore.agentDidGuid
@@ -378,7 +523,7 @@ open class Engine {
           
           self.state!["agentDid"] = "sending Agent DID to Blockchain"
     
-          NSLog("POST: did")
+          NSLog("POST: agent did")
           let message = didPackage.toJSONString()
           let dataMessage = (message.data(using: .utf8))! as Data
               let url = baseUrl+"v4/operations/did"
@@ -412,7 +557,14 @@ open class Engine {
       }  // end of func
           
     
-  
+    private func createJWCHeader() -> String {
+        var h = JSON()
+        h["typ"].string = "jwc"
+        h["alg"].string = "ES256"
+        let raw = h.rawString()
+        let encoded = raw?.toBase64()
+        return encoded!
+    }
     
     private func makeProof(didDoc: DidDocument, didToUse: CryptoCore.DIDSelector) -> Proof {
         var didGuidToUse: String
@@ -442,17 +594,20 @@ open class Engine {
         header = header.toBase64()
         
         let payload = header+"."+body
-        var sig = cryptoCore.sign(message: payload, whichDid: didToUse)
+        let sig = cryptoCore.sign(message: payload, whichDid: didToUse)
         return payload+"."+sig!
     }
     
-    private func getAgentDidFromChain() {
+    private func saveImprimateurs() {
+        NSLog("TODO - saveImprimateurs")
     }
-    
-    private func getIDNListFromChain() {
-        
+
+    private func loadImprimateurs() {
+        NSLog("TODO - loadImprimateurs")
+
     }
-    
+
+  
 }
 
 
