@@ -44,7 +44,10 @@ class TestResultsViewController: UIViewController {
                 let preso = raptor.createPresentation(jwcs: jwcs,
                                                       imprimateurJwc: imprimateurJwc,
                                                       onBehalfOfDidGuid: onBehalfOfDidGuid)
-                    print (preso)
+                print (preso)
+                print (preso?.count)
+                //   time for the QR code VC that shows the qr code of the vc
+                initiateNextViewController(preso: preso!)
             } else {
                 NSLog("No imprimateur given!")
             }
@@ -52,6 +55,13 @@ class TestResultsViewController: UIViewController {
         } catch {
             print("Error in vc create")
         }
+    }
+    
+    private func initiateNextViewController(preso: String) {
+        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let nvc = storyBoard.instantiateViewController(withIdentifier: "IssuerVCPresentViewController") as! IssuerVCPresentViewController
+        nvc.preso = preso
+        self.present(nvc, animated: true, completion: nil)
     }
     
     private func grantImprimateur() {
@@ -62,9 +72,9 @@ class TestResultsViewController: UIViewController {
         cred["context"].string="http://foo/imprimateur"
         
         do {
-            let jwc = try raptor.createCredentialAsJWC(claims: cred)
-            raptor.addCredentialToWallet(jwc: jwc)
-            raptor.addImprimateurJWC(onBehalfOfDidGuid: (raptor.getMyDidDoc()?.did)!, imprimateurVC: jwc)
+            let vcAsJSONString = try raptor.createCredentialAsJWC (claims: cred)
+            //raptor.addCredentialToWallet(jwc: jwc)
+            raptor.addImprimateurAsJWC  (onBehalfOfDidGuid: (raptor.getMyDidDoc()?.did)!, imprimateurVC: vcAsJSONString)
         } catch {
             print("error in imprimateur create")
         }

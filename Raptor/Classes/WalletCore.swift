@@ -14,6 +14,10 @@ public class WalletCore {
     
     public init() {}
     
+    public func getWallet() -> [String : [String : WalletItem]] {
+        return wallet
+    }
+    
     public func getWalletItemByCredentialId (credentialId: String) -> WalletItem? {
         for issuerWallet in wallet {
             for walletItem in issuerWallet.value {

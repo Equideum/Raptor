@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B1510F92470981700C91277 /* RelyingPartyDIDDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1510F82470981700C91277 /* RelyingPartyDIDDisplayViewController.swift */; };
 		0B1D02B52465CAF2000816F8 /* ScanMyCSIDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D02B42465CAF2000816F8 /* ScanMyCSIDViewController.swift */; };
 		0B1D02B72465D47A000816F8 /* ScanMyNewTestResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D02B62465D47A000816F8 /* ScanMyNewTestResultViewController.swift */; };
 		0B1D02B92465DA1E000816F8 /* TestSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D02B82465DA1E000816F8 /* TestSummaryViewController.swift */; };
 		0B6050DC246C4B4D007C5F05 /* ScanMyCovidStatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6050DB246C4B4D007C5F05 /* ScanMyCovidStatusViewController.swift */; };
+		0B6B2F19247187A900BF9B10 /* ScanVenueQRCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6B2F18247187A900BF9B10 /* ScanVenueQRCodeViewController.swift */; };
 		0B7615E32464E1C70074D964 /* CSIDScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B7615E22464E1C60074D964 /* CSIDScannerViewController.swift */; };
 		0B7615E52464F4F80074D964 /* TestResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B7615E42464F4F80074D964 /* TestResultsViewController.swift */; };
 		0B7615E92464FD1D0074D964 /* IssuerVCPresentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B7615E82464FD1D0074D964 /* IssuerVCPresentViewController.swift */; };
@@ -35,10 +37,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0B1510F82470981700C91277 /* RelyingPartyDIDDisplayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelyingPartyDIDDisplayViewController.swift; sourceTree = "<group>"; };
 		0B1D02B42465CAF2000816F8 /* ScanMyCSIDViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMyCSIDViewController.swift; sourceTree = "<group>"; };
 		0B1D02B62465D47A000816F8 /* ScanMyNewTestResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMyNewTestResultViewController.swift; sourceTree = "<group>"; };
 		0B1D02B82465DA1E000816F8 /* TestSummaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSummaryViewController.swift; sourceTree = "<group>"; };
 		0B6050DB246C4B4D007C5F05 /* ScanMyCovidStatusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMyCovidStatusViewController.swift; sourceTree = "<group>"; };
+		0B6B2F18247187A900BF9B10 /* ScanVenueQRCodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanVenueQRCodeViewController.swift; sourceTree = "<group>"; };
 		0B7615E22464E1C60074D964 /* CSIDScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSIDScannerViewController.swift; sourceTree = "<group>"; };
 		0B7615E42464F4F80074D964 /* TestResultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestResultsViewController.swift; sourceTree = "<group>"; };
 		0B7615E82464FD1D0074D964 /* IssuerVCPresentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuerVCPresentViewController.swift; sourceTree = "<group>"; };
@@ -108,10 +112,10 @@
 			isa = PBXGroup;
 			children = (
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
-				0B6050DB246C4B4D007C5F05 /* ScanMyCovidStatusViewController.swift */,
 				0B7615E22464E1C60074D964 /* CSIDScannerViewController.swift */,
 				0B7615E82464FD1D0074D964 /* IssuerVCPresentViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
+				0B6050DB246C4B4D007C5F05 /* ScanMyCovidStatusViewController.swift */,
 				0B7615E42464F4F80074D964 /* TestResultsViewController.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
@@ -120,6 +124,8 @@
 				0B1D02B42465CAF2000816F8 /* ScanMyCSIDViewController.swift */,
 				0B1D02B62465D47A000816F8 /* ScanMyNewTestResultViewController.swift */,
 				0B1D02B82465DA1E000816F8 /* TestSummaryViewController.swift */,
+				0B1510F82470981700C91277 /* RelyingPartyDIDDisplayViewController.swift */,
+				0B6B2F18247187A900BF9B10 /* ScanVenueQRCodeViewController.swift */,
 			);
 			name = "Example for Raptor";
 			path = Raptor;
@@ -370,6 +376,8 @@
 				0B6050DC246C4B4D007C5F05 /* ScanMyCovidStatusViewController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
+				0B1510F92470981700C91277 /* RelyingPartyDIDDisplayViewController.swift in Sources */,
+				0B6B2F19247187A900BF9B10 /* ScanVenueQRCodeViewController.swift in Sources */,
 				0B1D02B52465CAF2000816F8 /* ScanMyCSIDViewController.swift in Sources */,
 				0B7615E32464E1C70074D964 /* CSIDScannerViewController.swift in Sources */,
 				0B7615E52464F4F80074D964 /* TestResultsViewController.swift in Sources */,

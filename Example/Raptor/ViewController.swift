@@ -14,7 +14,7 @@ class ViewController: UIViewController {
 
     // listen for update notifications from the raptor engine
   
-    var raptor = Raptor.Engine(prodChain: false)
+    var raptor = Raptor.Engine.sharedTest
     
     @objc private func updateState() {
         state.text = raptor.getState()

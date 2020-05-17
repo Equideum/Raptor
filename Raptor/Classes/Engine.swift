@@ -98,6 +98,41 @@ open class Engine {
         return resp
     }
     
+    public func createAndSendCalypso2Message(targetDid: String, relayUrl: String, message: String) throws {
+        let ephemeralAESKey = cryptoCore.createAESKey()
+        let iv = cryptoCore.createIV()
+        let cipheredMessage = cryptoCore.encryptWithAES(key: ephemeralAESKey, initializationVector: iv, message: message)
+        // need to read for the did of the target, to get their pub key
+        NSLog("GET: did for calypso target")
+        let url: String = baseUrl+"v4/operations/did?DID="+targetDid
+        let headers: HTTPHeaders = ["Accept": "application/json"]
+        AF.request(url, headers: headers).responseJSON { response in
+            switch response.result {
+            case .success(let value):
+                let code = response.response?.statusCode ?? 0
+                if (code == 200) {
+                    let didDocJson = JSON(value)
+                    let TargetDidDoc = DidDocument(jsonRepresentation: didDocJson)
+                    // now with target did in hand, encrypt the ephemeral AES key with the
+                    let encryptedAESKey = self.cryptoCore.encryptAESKeyWithECPubKey(key: ephemeralAESKey)
+                    var resp = JSON()
+                    resp["target"].string = targetDid
+                    resp["encryptedAESKey"].string = encryptedAESKey
+                    resp["initilizationVector"].string = iv
+                    resp["message"].string = cipheredMessage
+                    
+                    // now send the message to the relay
+                    NSLog("SEND message to relay")
+                } else {
+                    NSLog("TODO - target did not read")
+                }
+            case .failure (let error):
+                let msg = error.localizedDescription
+                NSLog(msg)
+            }
+        }
+    }
+    
     public func getMyDidDoc() -> DidDocument? {
         return self.myDidDoc
     }
@@ -138,7 +173,7 @@ open class Engine {
         if claims["id"].string == nil {
             throw VerifiableCredentialCreationError.mustContainId
         }
-        let header = createJWCHeader()
+        let header = createJWCHeaderAsBase64()
         
         let body = claims.rawString()?.toBase64()
         let payload = header+"."+body!
@@ -161,7 +196,7 @@ open class Engine {
         resp["imp"].string = imprimateurJwc
         resp["creds"].arrayObject = jwcs
     
-        let header = createJWCHeader()
+        let header = createJWCHeaderAsBase64()
         let body = resp.rawString()?.toBase64()
         let payload = header+"."+body!
         let sig = cryptoCore.sign(message: payload, whichDid: CryptoCore.DIDSelector.useAgentDid)
@@ -185,9 +220,8 @@ open class Engine {
     }
     
     public func getWallet() -> [String: [String: WalletItem]] {
-        NSLog("TODO - get wallet")
-        let k:[String: [String: WalletItem]]  = [ : ]
-        return k
+        let w = walletCore.getWallet()
+        return w
     }
     
     public func getTrustedDidDocumentByIssuer(wot: String, iss: String) -> DidDocument? {
@@ -207,9 +241,10 @@ open class Engine {
         return x
     }
     
-    public func addImprimateurJWC(onBehalfOfDidGuid: String, imprimateurVC: String) {
+    public func addImprimateurAsJWC(onBehalfOfDidGuid: String, imprimateurVC: String) {
         imprimateurJWCs[onBehalfOfDidGuid] = imprimateurVC
         saveImprimateurs()
+        NSLog("added imprimateur: \(imprimateurVC)")
     }
     
     /*
@@ -385,7 +420,8 @@ open class Engine {
                     if trustedIdns == nil {
                         trustedIdns = [ : ]
                     }
-                    trustedIdns![idnDidGuid]=trustedIssuer
+                    let d = trustedIssuer.didDoc?.did
+                    trustedIdns![d!]=trustedIssuer
                     self.trustWeb["idns"]=trustedIdns
                 } else {
                     self.networkFailed=true;
@@ -557,13 +593,12 @@ open class Engine {
       }  // end of func
           
     
-    private func createJWCHeader() -> String {
+    private func createJWCHeaderAsBase64() -> String {
         var h = JSON()
         h["typ"].string = "jwc"
         h["alg"].string = "ES256"
-        let raw = h.rawString()
-        let encoded = raw?.toBase64()
-        return encoded!
+        let resp =  h.rawString()?.toBase64()
+        return resp!
     }
     
     private func makeProof(didDoc: DidDocument, didToUse: CryptoCore.DIDSelector) -> Proof {

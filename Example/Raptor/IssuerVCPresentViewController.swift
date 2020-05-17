@@ -10,15 +10,15 @@ import UIKit
 
 class IssuerVCPresentViewController: UIViewController {
 
+    public var preso: String = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        var did: String? = "Hello Buddy"
-               if (did != nil) {
-                   did = did?.replacingOccurrences(of: ":", with: "\\:")
-                   let qr = generateQRCode(from: did!)
-                   QRCode.image=qr
-               }
+        preso = preso.replacingOccurrences(of: ":", with: "\\:")
+        let qr = generateQRCode(from: preso)
+        QRCode.image=qr
+         
     }
     
     func generateQRCode(from string: String) -> UIImage? {

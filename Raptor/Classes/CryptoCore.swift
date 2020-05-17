@@ -134,6 +134,11 @@ public class CryptoCore {
         }
     }
     
+    public func createAESKey() -> SecKey? {return nil}
+    public func createIV() -> String? {return nil}
+    public func encryptAESKeyWithECPubKey (key: SecKey?) -> String? { return nil }
+    public func encryptWithAES (key: SecKey?, initializationVector: String?, message: String) -> String? {return nil }
+    
     private func deleteKey(keyTag: String, keyType: String) -> Bool {
         var query: [String: Any] = [
             kSecClass as String: kSecClassKey,
