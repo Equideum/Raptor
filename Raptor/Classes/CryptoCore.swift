@@ -9,6 +9,8 @@ import Foundation
 import SwiftKeychainWrapper
 import BigInt
 import SwiftyRSA
+import CryptoSwift
+import CommonCrypto
 
 
 public enum Base58String {
@@ -24,13 +26,25 @@ public class CryptoCore {
         case useAgentDid
     }
     
+    public enum AESError: Error {
+        case keyGeneration(status: Int)
+        case cryptoFailed(status: CCCryptorStatus)
+        case badKeyLength
+        case badInputVectorLength
+    }
+    
     private let IDENTITY_EC_PRIVATE_KEY_TAG = "org.fhirblocks.identityECMaster.priv"
     private let IDENTITY_EC_PUBLIC_KEY_TAG = "org.fhirblocks.identityECMaster.pub"
     private let AGENT_EC_PRIVATE_KEY_TAG = "org.fhirblocks.agentECMaster.priv"
     private let AGENT_EC_PUBLIC_KEY_TAG = "org.fhirblocks.agentECMaster.pub"
-    private let RSA_VERIF_PRIVATE_KEY_TAG = "org.fhirblocks.rsaVerif.priv"
-    private let RSA_VERIF_PUBLIC_KEY_TAG = "org.fhirblocks.rsaVerif.pub"
+    private let IDENTITY_RSA_VERIF_PRIVATE_KEY_TAG = "org.fhirblocks.identityRSAVerif.priv"
+    private let IDENTITY_RSA_VERIF_PUBLIC_KEY_TAG = "org.fhirblocks.identityRSAVerif.pub"
+    private let AGENT_RSA_VERIF_PRIVATE_KEY_TAG = "org.fhirblocks.identityRSAVerif.priv"
+    private let AGENT_RSA_VERIF_PUBLIC_KEY_TAG = "org.fhirblocks.identityRSAVerif.pub"
+    
     private let EC_KEY_SIZE = 256
+    private let RSA_KEY_SIZE = 2048
+    
     private let IDENTITY_DID_GUID_KEY = "didGuid"
     private let AGENT_DID_GUID_KEY = "agentDidGuid"
 
@@ -38,14 +52,19 @@ public class CryptoCore {
     private (set) var agentDidGuid: String?
     private (set) var identityECPubKeyBase58: String?
     private (set) var agentECPubKeyBase58: String?
-    private (set) var rsaVerifPubKeyPem: String?
+    private (set) var identityRSAVerifPubKeyPem: String?
+    private (set) var agentRSAVerifPubKeyPem: String?
     
     private var identityECPrivateKeyHandle: SecKey?
     private var agentECPrivateKeyHandle: SecKey?
-    private var rsaVerifPrivateKeyHandle: SecKey?
+  
     private var identityECPublicKeyRaw: SecKey?
     private var agentECPublicKeyRaw: SecKey?
-    private var rsaPublicKeyRaw: SecKey?
+    
+    private var identityRSAVerifPrivateKeyHandle: SecKey?
+    private var identityRSAPublicKeyRaw: SecKey?
+    private var agentRSAVerifPrivateKeyHandle: SecKey?
+    private var agentRSAPublicKeyRaw: SecKey?
     
     init() {
         // try to load from key ring
@@ -53,10 +72,14 @@ public class CryptoCore {
         getAgentDidGuidFromKeyRing()
         getIdentityECPubKeyBase58FromSecureEnclave()
         getAgentECPubKeyBase58FromSecureEnclave()
-        getRsaVerifPubKeyPemFromKeyRing()
+        getIdentityRsaVerifPubKeyPemFromKeyRing()
+        getAgentRsaVerifPubKeyPemFromKeyRing()
         
-        if (agentDidGuid == nil) || (identityDidGuid == nil) || (identityECPubKeyBase58 == nil) ||
-            (rsaVerifPubKeyPem == nil) || identityECPubKeyBase58 == nil {  // all is lost so rekey!
+        if  (agentDidGuid == nil) || (identityDidGuid == nil) ||
+            (identityECPubKeyBase58 == nil) ||  (identityRSAVerifPrivateKeyHandle == nil) ||
+            (agentECPubKeyBase58 == nil)  || (agentECPrivateKeyHandle == nil) ||
+            (identityRSAPublicKeyRaw == nil) || (identityRSAVerifPrivateKeyHandle == nil) ||
+            (agentRSAPublicKeyRaw == nil)  || (agentRSAVerifPrivateKeyHandle == nil) {  // all is lost so rekey!
             rekey()
         }
     }
@@ -93,23 +116,37 @@ public class CryptoCore {
         if (!agentECPrivKeyStatus) {
             NSLog ("unable to remove key - ec pub agent")
         }
-        let rsaVerifPrivKeyStatus =     deleteKey(keyTag: RSA_VERIF_PRIVATE_KEY_TAG, keyType: kSecAttrKeyTypeRSA as String)
-        if (!rsaVerifPrivKeyStatus) {
-            NSLog ("unable to remove key - rsa priv agent")
-        }
-        let rsaVerifPubKeyStatus =      deleteKey(keyTag: RSA_VERIF_PUBLIC_KEY_TAG, keyType: kSecAttrKeyTypeRSA as String)
-        if (!rsaVerifPubKeyStatus) {
-            NSLog ("unable to remove key - rsa pub agent")
-        }
         
+        // handle removal of rsa keys
+        
+        let identityRSAVerifPrivKeyStatus =     deleteKey(keyTag: IDENTITY_RSA_VERIF_PRIVATE_KEY_TAG, keyType: kSecAttrKeyTypeRSA as String)
+        if (!identityRSAVerifPrivKeyStatus) {
+            NSLog ("unable to remove key - identity rsa priv agent")
+        }
+        let identityRSAVerifPubKeyStatus =      deleteKey(keyTag: IDENTITY_RSA_VERIF_PUBLIC_KEY_TAG, keyType: kSecAttrKeyTypeRSA as String)
+        if (!identityRSAVerifPubKeyStatus) {
+            NSLog ("unable to remove key - identity rsa pub agent")
+        }
+        let agentRSAVerifPrivKeyStatus =     deleteKey(keyTag: AGENT_RSA_VERIF_PRIVATE_KEY_TAG, keyType: kSecAttrKeyTypeRSA as String)
+        if (!agentRSAVerifPrivKeyStatus) {
+            NSLog ("unable to remove key - agent rsa priv agent")
+        }
+        let agentRSAVerifPubKeyStatus =      deleteKey(keyTag: AGENT_RSA_VERIF_PUBLIC_KEY_TAG, keyType: kSecAttrKeyTypeRSA as String)
+        if (!agentRSAVerifPubKeyStatus) {
+            NSLog ("unable to remove key - agent rsa pub agent")
+        }
+
         identityECPrivateKeyHandle = nil
         agentECPrivateKeyHandle = nil
-        rsaVerifPrivateKeyHandle = nil
         identityECPublicKeyRaw = nil
         agentECPublicKeyRaw = nil
-        rsaPublicKeyRaw = nil
+        identityRSAVerifPrivateKeyHandle = nil
+        identityRSAPublicKeyRaw = nil
+        agentRSAVerifPrivateKeyHandle = nil
+        agentRSAPublicKeyRaw = nil
         
-        NSLog("TODO - remove list of rsa keys for digi signing")
+        
+        NSLog("TODO - remove list of rsa keys for digi signing - but only for identity side not agent as theres no such thing")
         
     }
 
@@ -134,10 +171,114 @@ public class CryptoCore {
         }
     }
     
-    public func createAESKey() -> SecKey? {return nil}
-    public func createIV() -> String? {return nil}
-    public func encryptAESKeyWithECPubKey (key: SecKey?) -> String? { return nil }
-    public func encryptWithAES (key: SecKey?, initializationVector: String?, message: String) -> String? {return nil }
+    public func createAESKey() throws -> String {
+        let password = randomData(length: 64)
+        let salt = randomData(length: 8)
+        let length = kCCKeySizeAES256
+        var status = Int32(0)
+        var derivedBytes = [UInt8] (repeating: 0, count: length)
+        password.withUnsafeBytes { (passwordBytes: UnsafePointer<Int8>!) in
+            salt.withUnsafeBytes { (saltBytes: UnsafePointer<UInt8>!) in
+                status = CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2), passwordBytes, password.count, saltBytes, salt.count, CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA1), 10000, &derivedBytes, length)
+            }
+            
+        }
+        guard status == 0 else {
+            throw AESError.keyGeneration(status: Int(status))
+        }
+        let key = Data(bytes: UnsafePointer<UInt8>(derivedBytes), count: length).base64EncodedString()
+        return key
+    }
+    
+    public func createIV() -> String? {
+        let r: Data = randomData(length: kCCBlockSizeAES128)
+        let k = r.base64EncodedString()
+        return k
+    }
+    
+    /*
+        REMEMBER - EC pub key is base 58 encoded! and is a pem!
+     */
+    
+    public func encryptAESKeyWithRSAVerifPubKey (aesKey: String?, rsaPublicKey: String) -> String? {
+        var workingKeyStrg = rsaPublicKey
+        workingKeyStrg = workingKeyStrg.replacingOccurrences(of: "-----BEGIN RSA PUBLIC KEY-----", with: "")
+        workingKeyStrg = workingKeyStrg.replacingOccurrences(of: "-----END RSA PUBLIC KEY-----", with: "")
+        let keyData = Data.init (base64Encoded: workingKeyStrg)?.bytes
+        
+        
+        //let keyData = Data.init(base64Encoded: ECPublicKey)
+        let keyDict: [String:Any] = [
+            kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
+            kSecAttrKeyClass as String: kSecAttrKeyClassPublic,
+            kSecAttrKeySizeInBits as String: RSA_KEY_SIZE
+        ]
+        var error: Unmanaged<CFError>?
+        
+        let pubKey = SecKeyCreateWithData(Data.init (bytes: keyData!) as CFData, keyDict as CFDictionary, &error)
+
+        let blockSize = SecKeyGetBlockSize(pubKey!)
+        
+        var status: OSStatus!
+     
+        var messageEncrypted = [UInt8](repeating: 0, count: blockSize)
+        var messageEncryptedSize = blockSize
+
+        status = SecKeyEncrypt( pubKey!,
+                               SecPadding.PKCS1,
+                               aesKey!,
+                               aesKey!.characters.count,
+                               &messageEncrypted,
+                               &messageEncryptedSize)
+
+        
+        
+        if status != noErr {
+            NSLog("error in ec2 encrypt \(status.debugDescription)")
+            let d = SecCopyErrorMessageString(status, nil)
+            
+            return nil
+        }
+        let data = Data.init(bytes: messageEncrypted)
+        let encryptedBase64 = data.base64EncodedString()
+        return encryptedBase64
+    }
+    
+    public func encryptWithAES (message: String) throws -> (String?, String?, String?) {
+        let keyScratchPad = randomData(length: 32).base64EncodedString()
+        let ivScratchPad = randomData(length: 64).base64EncodedString()
+        let key = String(keyScratchPad.prefix(32))
+        let iv = String(ivScratchPad.prefix(16))
+        
+        // new approach
+        do {
+            let encryptedBytes = try AES (key: key, iv: iv, padding: .pkcs7).encrypt([UInt8](message.data(using: .utf8)!))
+            let  cipherTextAsBase64 = Data(encryptedBytes).base64EncodedString()
+            return (key,iv,cipherTextAsBase64)
+
+            // now unwind what we did and decrypt it
+            /*
+            guard let data = Data(base64Encoded: cipherTextAsBase64) else { return ""}
+            let decryptedBytes = try AES(key: String(key), iv: String(iv), padding: .pkcs7).decrypt([UInt8](data))
+            let clear = String (bytes: decryptedBytes, encoding: .utf8)
+                
+            print(clear!)
+            */
+        } catch {
+            print (error)
+            return (nil,nil,nil)
+        }
+      
+    }
+    
+    private func randomData(length: Int) -> Data {
+        var data = Data(count: length)
+        let status = data.withUnsafeMutableBytes { mutableBytes in
+            SecRandomCopyBytes(kSecRandomDefault, length, mutableBytes)
+        }
+        assert (status == Int32(0))
+        return data
+    }
     
     private func deleteKey(keyTag: String, keyType: String) -> Bool {
         var query: [String: Any] = [
@@ -212,15 +353,28 @@ public class CryptoCore {
       }
       
     
-    private func getRsaVerifPubKeyPemFromKeyRing() {
-        rsaVerifPrivateKeyHandle = getPrivKeyHandle(keyTag: RSA_VERIF_PRIVATE_KEY_TAG, canDecrypt: false, keyType: kSecAttrKeyTypeRSA)
-        if (rsaVerifPrivateKeyHandle != nil) {
+    private func getIdentityRsaVerifPubKeyPemFromKeyRing() {
+        identityRSAVerifPrivateKeyHandle = getPrivKeyHandle(keyTag: IDENTITY_RSA_VERIF_PRIVATE_KEY_TAG, canDecrypt: false, keyType: kSecAttrKeyTypeRSA)
+        if (identityRSAVerifPrivateKeyHandle != nil) {
             // get the pub key from the priv key
-            rsaPublicKeyRaw = SecKeyCopyPublicKey(rsaVerifPrivateKeyHandle!)
-            if (rsaVerifPrivateKeyHandle != nil) {
-                rsaVerifPubKeyPem = convertRSAKeyToPemBase64(key: rsaPublicKeyRaw!)
-                rsaVerifPubKeyPem = rsaVerifPubKeyPem!.replacingOccurrences(of: "\n", with: "")
-                NSLog("RSA Verification Key recovered from Keychain")
+            identityRSAPublicKeyRaw = SecKeyCopyPublicKey(identityRSAVerifPrivateKeyHandle!)
+            if (identityRSAPublicKeyRaw != nil) {
+                identityRSAVerifPubKeyPem = convertRSAKeyToPemBase64(key: identityRSAPublicKeyRaw!)
+                identityRSAVerifPubKeyPem = identityRSAVerifPubKeyPem!.replacingOccurrences(of: "\n", with: "")
+                NSLog("identity RSA Verification Key recovered from Keychain")
+            }
+        }
+    }
+    
+    private func getAgentRsaVerifPubKeyPemFromKeyRing() {
+        agentRSAVerifPrivateKeyHandle = getPrivKeyHandle(keyTag: AGENT_RSA_VERIF_PRIVATE_KEY_TAG, canDecrypt: false, keyType: kSecAttrKeyTypeRSA)
+        if (agentRSAVerifPrivateKeyHandle != nil) {
+            // get the pub key from the priv key
+            agentRSAPublicKeyRaw = SecKeyCopyPublicKey(agentRSAVerifPrivateKeyHandle!)
+            if (agentRSAPublicKeyRaw != nil) {
+                agentRSAVerifPubKeyPem = convertRSAKeyToPemBase64(key: agentRSAPublicKeyRaw!)
+                agentRSAVerifPubKeyPem = agentRSAVerifPubKeyPem!.replacingOccurrences(of: "\n", with: "")
+                NSLog("agent RSA Verification Key recovered from Keychain")
             }
         }
     }
@@ -230,7 +384,8 @@ public class CryptoCore {
         makeIdentityDidGuid()
         makeIdentityEcKey()
         makeAgentEcKey()
-        makeRsaVerifKey()
+        makeAgentRsaVerifKey()
+        makeIdentityRsaVerifKey()
     }
 
     private func makeAgentDidGuid() {
@@ -362,11 +517,18 @@ public class CryptoCore {
            NSLog ("Done with Agent ECkey creation")
        }
     
-    private func makeRsaVerifKey() {
-        (rsaVerifPrivateKeyHandle, rsaPublicKeyRaw) = createRSAKey(privateTag: RSA_VERIF_PRIVATE_KEY_TAG, publicTag: RSA_VERIF_PUBLIC_KEY_TAG)
-        rsaVerifPubKeyPem = convertRSAKeyToPemBase64(key: rsaPublicKeyRaw!)
-        rsaVerifPubKeyPem = rsaVerifPubKeyPem?.replacingOccurrences(of: "\n", with: "")
+    private func makeAgentRsaVerifKey() {
+        (agentRSAVerifPrivateKeyHandle, agentRSAPublicKeyRaw) = createRSAKey(privateTag: AGENT_RSA_VERIF_PRIVATE_KEY_TAG, publicTag: AGENT_RSA_VERIF_PUBLIC_KEY_TAG)
+        agentRSAVerifPubKeyPem = convertRSAKeyToPemBase64(key: agentRSAPublicKeyRaw!)
+        agentRSAVerifPubKeyPem = agentRSAVerifPubKeyPem?.replacingOccurrences(of: "\n", with: "")
     }
+
+    private func makeIdentityRsaVerifKey() {
+        (identityRSAVerifPrivateKeyHandle, identityRSAPublicKeyRaw) = createRSAKey(privateTag: IDENTITY_RSA_VERIF_PRIVATE_KEY_TAG, publicTag: IDENTITY_RSA_VERIF_PUBLIC_KEY_TAG)
+        identityRSAVerifPubKeyPem = convertRSAKeyToPemBase64(key: identityRSAPublicKeyRaw!)
+        identityRSAVerifPubKeyPem = identityRSAVerifPubKeyPem?.replacingOccurrences(of: "\n", with: "")
+    }
+
     
     private func createRSAKey(privateTag: String, publicTag: String) -> (SecKey?, SecKey?) {
         let publicKeyAttr = [
@@ -385,7 +547,7 @@ public class CryptoCore {
         
         let parms =  [
           kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
-          kSecAttrKeySizeInBits as String: 2048,
+          kSecAttrKeySizeInBits as String: RSA_KEY_SIZE,
           kSecPrivateKeyAttrs as String: privateKeyAttr,
           kSecPublicKeyAttrs as String: publicKeyAttr
         ] as CFDictionary
@@ -491,6 +653,29 @@ public extension String {
         answer.reverse()
 
         self = String(bytes: answer, encoding: String.Encoding.utf8)!
+    }
+
+}
+
+public extension Data {
+
+    public init?(base58Decoding string: String, alphabet: [UInt8] = Base58String.btcAlphabet) {
+        var answer = BigUInt(0)
+        var j = BigUInt(1)
+        let radix = BigUInt(alphabet.count)
+        let byteString = [UInt8](string.utf8)
+
+        for ch in byteString.reversed() {
+            if let index = alphabet.index(of: ch) {
+                answer = answer + (j * BigUInt(index))
+                j *= radix
+            } else {
+                return nil
+            }
+        }
+
+        let bytes = answer.serialize()
+        self = byteString.prefix(while: { i in i == alphabet[0]}) + bytes
     }
 
 }

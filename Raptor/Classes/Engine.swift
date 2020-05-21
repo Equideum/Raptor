@@ -34,6 +34,10 @@ open class Engine {
         case mustContainId
     }
     
+    public enum CalypsoError: Error {
+        case unableToCipherMessage
+    }
+    
     private let BASE_TEST_URL = "https://cmt.fhirblocks.io/"
     private let BASE_PROD_URL = "https://prodchain.fhirblocks.io/"
     
@@ -48,12 +52,19 @@ open class Engine {
               NotificationCenter.default.post(name: NSNotification.Name(rawValue: RaptorStateUpdate), object:nil)
           }
       }
+    
     private (set) var networkFailed: Bool {
         didSet {
             NSLog("TODO - Network failure handler")
         }
     }
-
+    
+    private (set) var calypsoSendFailed: Bool {
+        didSet {
+            NSLog("TODO - Calypso failure handler")
+        }
+    }
+    
     private let cryptoCore: CryptoCore = CryptoCore()
     private var fbDidDoc: DidDocument = DidDocument()
     private var trustWeb: [String: [String: TrustedIssuer]] = [:]
@@ -69,6 +80,7 @@ open class Engine {
         }
         
         networkFailed = false
+        calypsoSendFailed = false 
         state = [:]
         state!["ping"]="Need Ping"
         state!["fbDid"]="Need fbDid"
@@ -98,35 +110,97 @@ open class Engine {
         return resp
     }
     
+
     public func createAndSendCalypso2Message(targetDid: String, relayUrl: String, message: String) throws {
-        let ephemeralAESKey = cryptoCore.createAESKey()
-        let iv = cryptoCore.createIV()
-        let cipheredMessage = cryptoCore.encryptWithAES(key: ephemeralAESKey, initializationVector: iv, message: message)
-        // need to read for the did of the target, to get their pub key
-        NSLog("GET: did for calypso target")
+        guard let resp = try? cryptoCore.encryptWithAES(message: message) else {
+            NSLog("cipher message failed")
+            throw CalypsoError.unableToCipherMessage
+        }
+        // get the targetDidDoc
+        NSLog("GET: target did")
         let url: String = baseUrl+"v4/operations/did?DID="+targetDid
         let headers: HTTPHeaders = ["Accept": "application/json"]
-        AF.request(url, headers: headers).responseJSON { response in
+        AF.request(url, headers: headers).responseJSON{ response in
             switch response.result {
             case .success(let value):
                 let code = response.response?.statusCode ?? 0
                 if (code == 200) {
                     let didDocJson = JSON(value)
-                    let TargetDidDoc = DidDocument(jsonRepresentation: didDocJson)
-                    // now with target did in hand, encrypt the ephemeral AES key with the
-                    let encryptedAESKey = self.cryptoCore.encryptAESKeyWithECPubKey(key: ephemeralAESKey)
-                    var resp = JSON()
-                    resp["target"].string = targetDid
-                    resp["encryptedAESKey"].string = encryptedAESKey
-                    resp["initilizationVector"].string = iv
-                    resp["message"].string = cipheredMessage
+                    let authenticators = didDocJson["authentication"]
+                    var pubKeyPem = ""
+                    for authenticator in authenticators {
+                        if "RSAVERIFICATIONKEY2018" == authenticator.1["type"].string {
+                            pubKeyPem = authenticator.1["publicKeyPem"].string!
+                        }
+                    }
+                    if (pubKeyPem == "") {
+                        NSLog("no EC256 key in DID document")
+                        self.calypsoSendFailed=true
+                    } else {
+                        //  public func encryptAESKeyWithECPubKey (AESKey: String?, ECPublicKey: String) -> String? {
+                        
+                        if let finalKey = self.cryptoCore.encryptAESKeyWithRSAVerifPubKey(aesKey: resp.0, rsaPublicKey: pubKeyPem) {
+                            try? self.sendCalypso2Message(targetDid: targetDid, relayUrl: relayUrl, key: finalKey, iv: resp.1!, cipheredMessage: resp.2!)
+                        }
+                    }
+                    // now with the target did in hand, we use
+                    print("dd")
+                } else {
+                    self.state!["fbDid"]="FB Did Error"
+                    self.networkFailed=true;
+                    Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getFbDidDoc), userInfo: nil, repeats: false)
+                }
+            case .failure (let error):
+                let msg = error.localizedDescription
+                NSLog(msg)
+            }
+        }
+    }
+     
+    /*
+        calypso message parts are as follows:
+     
+        targetDid: the recipient of the message
+        version:  2.0 for this version of calypso
+        key:  encrypted symetrical key
+        iv:  initialization veector
+        message:   the message encrypted
+     
+     */
+    private func sendCalypso2Message(targetDid: String, relayUrl: String, key: String, iv: String, cipheredMessage: String) throws {
+        var payload = JSON()
+        payload["version"].string = "2.0.0"
+        payload["targetDid"].string = targetDid
+        payload["key"].string = key
+        payload["iv"].string = iv
+        payload["payload"].string = cipheredMessage
+        let rawMessage =  payload.rawString()
+        
+        // need to read for the did of the target, to get their pub key
+        NSLog("POST: CALYPSO relay")
+        let dataMessage: Data = rawMessage!.data(using: .utf8)!
+        //let headers: HTTPHeaders = ["Accept": "application/json"]
+        var request = URLRequest(url: URL(string: relayUrl)!)
+        request.httpMethod = HTTPMethod.post.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.httpBody = dataMessage
+        
+        AF.request(request).responseJSON { response in
+            switch response.result {
+            case .success(let value):
+                let code = response.response?.statusCode ?? 0
+                if (code == 210) {
+                    NSLog("CALYPSO post worked aok")
                     
                     // now send the message to the relay
                     NSLog("SEND message to relay")
                 } else {
-                    NSLog("TODO - target did not read")
+                    NSLog("TODO - target did not post \(code)")
+                    self.calypsoSendFailed = true
                 }
             case .failure (let error):
+                self.calypsoSendFailed = true
                 let msg = error.localizedDescription
                 NSLog(msg)
             }
@@ -448,8 +522,8 @@ open class Engine {
         self.state!["myDid"] = "Creating DID"
         NSLog("Creating a new DID Document from DID \(cryptoCore.identityDidGuid!)")
         
-        if (cryptoCore.identityECPubKeyBase58 == nil) || (cryptoCore.rsaVerifPubKeyPem == nil)  {
-                NSLog("Identity EC Pub Key not present - stall wait ")
+        if (cryptoCore.identityECPubKeyBase58 == nil) || (cryptoCore.identityRSAVerifPubKeyPem == nil)  {
+                NSLog("Identity EC Pub Key OR rsa verif key not present - stall wait ")
                 Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.createIdentityDid), userInfo: nil, repeats: false)
                 return
         }
@@ -463,7 +537,7 @@ open class Engine {
         var rsaVerificationAuth = DidAuthentication()
         rsaVerificationAuth.id = cryptoCore.identityDidGuid!+"#key-2"
         rsaVerificationAuth.controller = cryptoCore.identityDidGuid
-        rsaVerificationAuth.publicKeyPem =  cryptoCore.rsaVerifPubKeyPem
+        rsaVerificationAuth.publicKeyPem =  cryptoCore.identityRSAVerifPubKeyPem
         rsaVerificationAuth.type = "RSAVERIFICATIONKEY2018"
         
  
@@ -537,6 +611,13 @@ open class Engine {
           auth.controller = cryptoCore.agentDidGuid
           auth.publicKeyPem = cryptoCore.agentECPubKeyBase58
           auth.type = "ED25519VERIFICATIONKEY2018"
+        
+          var rsaVerificationAuth = DidAuthentication()
+          rsaVerificationAuth.id = cryptoCore.agentDidGuid!+"#key-2"
+          rsaVerificationAuth.controller = cryptoCore.agentDidGuid
+          rsaVerificationAuth.publicKeyPem =  cryptoCore.agentRSAVerifPubKeyPem
+          rsaVerificationAuth.type = "RSAVERIFICATIONKEY2018"
+        
           
           self.agentDidDoc = DidDocument()
           self.agentDidDoc?.did = cryptoCore.agentDidGuid!
@@ -544,6 +625,7 @@ open class Engine {
           self.agentDidDoc?.active = true
           self.agentDidDoc?.name = ""
           self.agentDidDoc?.authentication[auth.id!] = auth
+          self.agentDidDoc?.authentication[rsaVerificationAuth.id!] = rsaVerificationAuth
           
           // safe pt
           let proof = makeProof(didDoc: self.agentDidDoc!, didToUse: CryptoCore.DIDSelector.useAgentDid)

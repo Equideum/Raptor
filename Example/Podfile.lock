@@ -4,9 +4,11 @@ PODS:
     - BigInt (~> 3.1)
   - BigInt (3.1.0):
     - SipHash (~> 1.2)
+  - CryptoSwift (1.3.1)
   - Raptor (0.1.0):
     - Alamofire (~> 5.1.0)
     - BigInt (~> 3.1.0)
+    - CryptoSwift
     - SwiftKeychainWrapper (~> 3.4.0)
     - SwiftyJSON (~> 5.0.0)
     - SwiftyRSA
@@ -25,6 +27,7 @@ SPEC REPOS:
   trunk:
     - Alamofire
     - BigInt
+    - CryptoSwift
     - SipHash
     - SwiftKeychainWrapper
     - SwiftyJSON
@@ -45,12 +48,13 @@ SPEC CHECKSUMS:
   Alamofire: 9d5c5f602928e512395b30950c5984eca840093c
   Base58String: a12a7d574e00d07c5f58ff5b7adf7f1353a32a44
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
-  Raptor: 58ac94f2fe0fb4a48890cce35c46b553d66d5d6c
+  CryptoSwift: f12f037f6d0fcd6d48c96db0071b653de64e6c4d
+  Raptor: 479cde155c050eb634684190cbe59e736eb9a9a9
   SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
   SwiftKeychainWrapper: 6fc49fbf7d4a6b0772917acb0e53a1639f6078d6
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
   SwiftyRSA: 6e528fb1b1a87d5111c48081083b141d6d65f1cf
 
-PODFILE CHECKSUM: 6020ff96d9929d15647659ad0b19088aab7d4d13
+PODFILE CHECKSUM: a7b7b682ce38587223aaa999e40f1767584f3b7d
 
 COCOAPODS: 1.9.1

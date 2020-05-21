@@ -261,7 +261,7 @@
                         <viewControllerLayoutGuide type="bottom" id="RAG-GX-YWl"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="7jR-j9-FDQ">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Welcome, Wilbur Post" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZU5-Io-TZ0">
@@ -536,7 +536,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="GaV-Gk-0Fu"/>
+        <segue reference="WyU-uw-i3v"/>
         <segue reference="Iud-6Q-wsX"/>
     </inferredMetricsTieBreakers>
     <resources>

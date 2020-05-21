@@ -132,6 +132,7 @@ class ScanVenueQRCodeViewController: UIViewController, AVCaptureMetadataOutputOb
                     let preso = raptor.createPresentation(jwcs: jwcs, imprimateurJwc: imprimateurJWC, onBehalfOfDidGuid: myIdentity)
                     print (preso)
                     //raptor.createCalypsoMessage (preso)
+                    NSLog("TODO - clean up proper did to send calypso to")
                     let targetDid = raptor.getAgentDidDoc()!.did
                     let relayUrl = venue["relayUrl"].string
                     try raptor.createAndSendCalypso2Message(targetDid: targetDid, relayUrl: relayUrl!,  message: preso!)
