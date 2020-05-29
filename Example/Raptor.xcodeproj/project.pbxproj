@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B13288A247D7BD60087792C /* SubjectLandingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B132889247D7BD60087792C /* SubjectLandingPageViewController.swift */; };
 		0B1510F92470981700C91277 /* RelyingPartyDIDDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1510F82470981700C91277 /* RelyingPartyDIDDisplayViewController.swift */; };
 		0B1D02B52465CAF2000816F8 /* ScanMyCSIDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D02B42465CAF2000816F8 /* ScanMyCSIDViewController.swift */; };
 		0B1D02B72465D47A000816F8 /* ScanMyNewTestResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D02B62465D47A000816F8 /* ScanMyNewTestResultViewController.swift */; };
 		0B1D02B92465DA1E000816F8 /* TestSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D02B82465DA1E000816F8 /* TestSummaryViewController.swift */; };
 		0B6050DC246C4B4D007C5F05 /* ScanMyCovidStatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6050DB246C4B4D007C5F05 /* ScanMyCovidStatusViewController.swift */; };
+		0B61F287247D4D9300A5BFB3 /* Pods_Raptor_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27FB7B9EDDB6F48B83AF1E09 /* Pods_Raptor_Example.framework */; };
 		0B6B2F19247187A900BF9B10 /* ScanVenueQRCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6B2F18247187A900BF9B10 /* ScanVenueQRCodeViewController.swift */; };
 		0B7615E32464E1C70074D964 /* CSIDScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B7615E22464E1C60074D964 /* CSIDScannerViewController.swift */; };
 		0B7615E52464F4F80074D964 /* TestResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B7615E42464F4F80074D964 /* TestResultsViewController.swift */; };
@@ -22,7 +24,6 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
-		89BF808C9C1D1B3DF7036597 /* Pods_Raptor_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27FB7B9EDDB6F48B83AF1E09 /* Pods_Raptor_Example.framework */; };
 		B6CFCDFD8F411E8978D5CB8A /* Pods_Raptor_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB4CA5BADCD05C7DD8475574 /* Pods_Raptor_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -37,10 +38,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0B132889247D7BD60087792C /* SubjectLandingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectLandingPageViewController.swift; sourceTree = "<group>"; };
 		0B1510F82470981700C91277 /* RelyingPartyDIDDisplayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelyingPartyDIDDisplayViewController.swift; sourceTree = "<group>"; };
 		0B1D02B42465CAF2000816F8 /* ScanMyCSIDViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMyCSIDViewController.swift; sourceTree = "<group>"; };
 		0B1D02B62465D47A000816F8 /* ScanMyNewTestResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMyNewTestResultViewController.swift; sourceTree = "<group>"; };
 		0B1D02B82465DA1E000816F8 /* TestSummaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSummaryViewController.swift; sourceTree = "<group>"; };
+		0B2BF1A6247C872E00F63B69 /* Raptor_Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Raptor_Example.entitlements; sourceTree = "<group>"; };
 		0B6050DB246C4B4D007C5F05 /* ScanMyCovidStatusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMyCovidStatusViewController.swift; sourceTree = "<group>"; };
 		0B6B2F18247187A900BF9B10 /* ScanVenueQRCodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanVenueQRCodeViewController.swift; sourceTree = "<group>"; };
 		0B7615E22464E1C60074D964 /* CSIDScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSIDScannerViewController.swift; sourceTree = "<group>"; };
@@ -72,7 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				89BF808C9C1D1B3DF7036597 /* Pods_Raptor_Example.framework in Frameworks */,
+				0B61F287247D4D9300A5BFB3 /* Pods_Raptor_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +93,7 @@
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
+				0B2BF1A6247C872E00F63B69 /* Raptor_Example.entitlements */,
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				607FACD21AFB9204008FA782 /* Example for Raptor */,
 				607FACE81AFB9204008FA782 /* Tests */,
@@ -126,6 +130,7 @@
 				0B1D02B82465DA1E000816F8 /* TestSummaryViewController.swift */,
 				0B1510F82470981700C91277 /* RelyingPartyDIDDisplayViewController.swift */,
 				0B6B2F18247187A900BF9B10 /* ScanVenueQRCodeViewController.swift */,
+				0B132889247D7BD60087792C /* SubjectLandingPageViewController.swift */,
 			);
 			name = "Example for Raptor";
 			path = Raptor;
@@ -234,7 +239,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0830;
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 1140;
 				ORGANIZATIONNAME = CocoaPods;
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
@@ -385,6 +390,7 @@
 				0B7615E52464F4F80074D964 /* TestResultsViewController.swift in Sources */,
 				0B7615E92464FD1D0074D964 /* IssuerVCPresentViewController.swift in Sources */,
 				0B1D02B72465D47A000816F8 /* ScanMyNewTestResultViewController.swift in Sources */,
+				0B13288A247D7BD60087792C /* SubjectLandingPageViewController.swift in Sources */,
 				0B1D02B92465DA1E000816F8 /* TestSummaryViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -439,12 +445,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -492,12 +500,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -522,7 +532,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -533,7 +542,8 @@
 			baseConfigurationReference = 928270CFCCD95EABFD8D0379 /* Pods-Raptor_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 25;
+				CODE_SIGN_ENTITLEMENTS = Raptor_Example.entitlements;
+				CURRENT_PROJECT_VERSION = 26;
 				DEVELOPMENT_TEAM = 636L2P48DR;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Raptor/Info.plist;
@@ -552,7 +562,8 @@
 			baseConfigurationReference = 40D5ED7606AF1EEF229C791C /* Pods-Raptor_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 25;
+				CODE_SIGN_ENTITLEMENTS = Raptor_Example.entitlements;
+				CURRENT_PROJECT_VERSION = 26;
 				DEVELOPMENT_TEAM = 636L2P48DR;
 				ENABLE_BITCODE = NO;
 				ENABLE_TESTABILITY = YES;

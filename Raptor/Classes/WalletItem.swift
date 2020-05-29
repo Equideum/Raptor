@@ -29,6 +29,7 @@ public class WalletItem {
     private var context: String = ""
     
     
+    
 
     public init() {
         jsonCredential = JSON()
@@ -104,7 +105,7 @@ public class WalletItem {
             let credentialAsJSONString = String (data: Data(base64Encoded: credentialParts[1])!, encoding: .utf8)!
             if let dataFromString = credentialAsJSONString.data(using: .utf8, allowLossyConversion: false) {
                 var jsonCredential = try? JSON(data: dataFromString)
-                let iss = jsonCredential?["iss"].string
+                //let iss = jsonCredential?["iss"].string
                 var id = jsonCredential?["id"].string
                 var context = jsonCredential?["context"].string
                 // temp kludge to make up an id if its missing (Gen4 VCs do not have a id)
@@ -131,10 +132,21 @@ public class WalletItem {
 /*
    Test whether the credential is expired.  If credential has no exp claim, then they never expire
    */
-  private func testExpired (credential: JSON) -> Bool {
-      NSLog("TODO - testExpired unimplemented")
-      return false
-  }
+    private func testExpired (credential: JSON) -> Bool {
+        if let exp:  Double = jsonCredential["exp"].double{
+            let currentTime = NSDate().timeIntervalSince1970
+            if currentTime > exp {
+                isDirtyExpired = true
+            } else {
+                isDirtyExpired = false
+            }
+        } else {
+            isDirtyExpired = false
+        }
+        
+        NSLog("TODO - testExpired unimplemented")
+        return false
+    }
   
   /*
    Test whether cred is a high trusted cred with WOT.  If not WOT claim, then return false (it's untrusted)

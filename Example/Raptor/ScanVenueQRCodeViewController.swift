@@ -134,9 +134,15 @@ class ScanVenueQRCodeViewController: UIViewController, AVCaptureMetadataOutputOb
                     //raptor.createCalypsoMessage (preso)
                     NSLog("TODO - clean up proper did to send calypso to")
                     let targetDid = raptor.getAgentDidDoc()!.did
-                    let relayUrl = venue["relayUrl"].string
+                    //let relayUrl = venue["relayUrl"].string
+                    let relayUrl: String?  = "http://34.208.208.92:9080/" 
+                    NSLog("TODO - remove kludge in setting relay url")
                     try raptor.createAndSendCalypso2Message(targetDid: targetDid, relayUrl: relayUrl!,  message: preso!)
                 }
+                
+                // revert to prior view controller
+                navigationController?.popViewController(animated: true)
+                
             } catch {
                 print ("error")
             }

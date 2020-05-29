@@ -40,7 +40,10 @@ open class Engine {
     
     private let BASE_TEST_URL = "https://cmt.fhirblocks.io/"
     private let BASE_PROD_URL = "https://prodchain.fhirblocks.io/"
-    
+    private let DID_AUTH_INITIATE_CONTEXT = "v5/didAuth/initiate"
+    private let DID_AUTH_CHALLENGE_RESPONSE_CONTEXT = "v5/didAuth/challengeResp"
+    private let SEND_CALYPSO_CONTEXT = "v5/calypso"
+    private let RELAY_URL = "http://34.208.208.92:9080/"
     private var baseUrl: String
     
     private (set) var fhirblocksVersion = "unknown"
@@ -97,6 +100,44 @@ open class Engine {
         getIDNListFromChain()
     }
 
+    public func test3 () {
+        let ec = "r2kzlegBkksvThVjhL1sFFkFpuC4eJna2g0NsX6f9h5YwpMtGDN8tjbRh9GR/3eOSCLLpHSav813/xobKtGkOhaxnGhGBTHnICIFLTpv9BGIbhb4qTLsO4QaN11agFyfhe9JeAa+QIhk3KvuD6+NLQqKK9KTfGxogTE/dyhPpEaOC48yIsufgW4TtSjwBebO9YbOijFuho3zWSpDZnMdY4IuDqBLR2VsQHFAwTlqVcrGw0ZbJ6f6M4Q3KVqamgEeJVxA4zrA5uiE95+qVufAmsX6z1Je6DZGlbij4xL4qEzbqPE/S8/5+Nx5AmtJTGsoSyKCtVlyGYiBQYT7gypEGklFoIfCXJBsWTV3O0NerduAtZ+IZwDWWS3z2sgkWZOnWw3tZqOUX7HF+LuEekj/2tzKEcZthxoszbreJ79iCYm4vXD8ClVVMnYGmeCKIakwh0yZ9KLSrGqpXW+8oI5euzqHIYppIeSVQ6okeIx/pWLEpj2VycraG0Nmouh4AQXcD1ct9Qsj40IZDClH0XW1JBQSeBv3JhQaDZLnaLjTw7eQWD5N3tZUbXGXp4HuCKnM9AOXtzr6DLXx/2Do4O86uVIZzN6ytI0waJ1IE8NtAxSJ7LvNJULr2ZKlTYdN9NqJZydlY4nCsgdoxsTa3hX1iafBbAN3L3zHTo1c+D8LKrPqkC3RKea4LsIsda8eLaBHFODBMgZXWPtDrAWWQ3HINlraCe8ju9tU2/M+KJzn1oHYIo+Acf2AjRRGn4PMIOdqiVPTcmpGrzva/1B7HbZzGJosChu8MXQ9aw+mp5jbmeWDn5jBJO2BAN+oGI4lTQ+ZHIpMEiBmkUKOOYujoy6EGWkr9rmgH4iQ8u7n60Jbiv/bRAnsQBhpCmnJCQGUr8cm68XXHnE3YCttp+2uzrVjXR90QYmY/jl/7VX1ZaraCL+GujAmZ3ncKGJcbE4AfJroL3+YmYDA4ZP+CvEpM7am8Y9crdfqxM0Y/mDs47FQQuHF+s9SXug2RpW4o+MS+KhMQiqbHOkREFcvb312YVwW6tXcIg5Q/CzUkFM+IAR+wHqwVeNIWLLbkGEbGmUmStQdZI3sU5uW0TOc2/ymJBp6qLGMMccPY1T80Pi9+8GAt0pz4cFOBFrovbj+EcY1qy2oE/oQyH2ws3bZgs/ROYwdFPKHwOPEtgDjUcbLOCHIXyu4IQAv0zl7bR99Ylllikc/+nuyQZRDQsWBe+1ONUaeIl5hOp/0dVctwbarTkwAlUtJGX9/O/YiZ3MHoPvGWDa+0lEMNq3UTRxyqM0+IyklO5QgZDtPYifFgGP7bx9Hs3mWLxjKzAgR2Iicp0cOHkQQisLZr3tj2W5N9K+wbsCWJ6WFF2w4/eCe7me9FiuSC57XC+YAkTix6sDHwDG64JybeUW7MVezOZpMVsAcpGSk4BO631Wdl6toebSBHfUIXMivMD7DGJQmzZOfxl3Q3IpMH1lZIUJK+xxa/Q9txArsTPJarmwKfN+kUUC6nn+lKGAjmvidmOTYSpXFDxLK5vIa5+AmGQPDEaZzYLJtb0thMB3On0K730km2izy02o6t6pc1MUnMD9uqhvAhNweLVHbeydb1NJ7JkvahLCKZMCivKj5Gwn42w/bvA+wAZbSK1gBl2CTvjj01oEw1b3J917csoFLxCojQNryMxNKX2SveeZGDsScITnUlEkZGQWDNE1/G5Tqd4WQcCNJ4C+igU6ppy2800gSPXggrx8T894Ml3FLuAlJK2jXoWDVnH6KyVPSJgw9z1AyfMzMjignqY6wEXIF4mm8tYtEUC8y0I1TZ1E0zk2nooRMk5XwLOz3WrAfRcLL+PlzajK9Xrjq4aEWC/cC5h0uvahCkaD4gr5niw=="
+        let okey = "FcFQ1+C2bviiXJugUHkCWc5ecqAxKajlPTz3z1CsOzSfd6IpFgRKH7S1b8nhEq1LUPIQEhO1ncOB/FwwnPuCtBdeWtEIWzJSZsvQy+1t6EjZgjScNsTY2z2PE/8sO1TqDsV6UuN1Ixwip/5NG7u4dQjfH8nlhEasN776nWLHbSbalpqNe+AWMIY4l76M5GFEgvuSGABabs9M57U3D11Nkjbl6uOExUTyix4bLhZtWsDFGkJJx4hbYSr77TVbQD0pZFMY1D0u4S35ePPuttKPbyIuAKxshT9IhEXqrZKY1IsSKssZbCaNGzkAIlDNRBFUMvm8rGFXgoFmcxceAM1Vkg=="
+        let oiv = "kCYLA0UTFDETXLOQGBjE3g=="
+        let ckey = cryptoCore.decryptWithAgentPrivateKey(message: okey)
+        let clear = cryptoCore.decryptWithAes(key: ckey!, iv: oiv, cipherText: ec)
+        print (clear)
+    }
+    
+    public func test2 (key: String, iv: String, message: String) {
+        let clearkey = cryptoCore.decryptWithAgentPrivateKey(message: key)
+        let clearmsg = cryptoCore.decryptWithAes(key: clearkey!, iv: iv, cipherText: message)
+        print (clearmsg)
+    }
+    
+    public func test() {
+        
+        let clear  = "hello world how are you"
+        
+        let resp = try? cryptoCore.encryptWithAES(message: clear)
+        let key = resp!.0
+        let iv = resp!.1
+        let msg = resp!.2
+        
+        let aesclear = cryptoCore.decryptWithAes(key: key!, iv: iv!, cipherText: msg!)
+        print(aesclear)
+        
+        
+        let cipher = cryptoCore.encryptWithPublicKey(message: key!, rsaPublicKey: cryptoCore.agentRSAVerifPubKeyPem!);
+        let key2 = cryptoCore.decryptWithAgentPrivateKey(message: cipher!)
+
+        let aesclear2 = cryptoCore.decryptWithAes(key: key2!, iv: iv!, cipherText: msg!)
+
+        
+        print (aesclear2)
+        
+    }
+    
     public func getState () -> String {
         var resp: String  = ""
         for x in state! {
@@ -110,14 +151,120 @@ open class Engine {
         return resp
     }
     
-
+    public func checkForCalypsoCredentials () {
+        NSLog("Checking for Calypso Traffic")
+        // first we need to get a token
+        let didAuthInitUrl = RELAY_URL + DID_AUTH_INITIATE_CONTEXT
+        var request = URLRequest(url: URL (string: didAuthInitUrl)!)
+        request.httpMethod = HTTPMethod.get.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+         
+        AF.request(request).responseJSON { response in
+             switch response.result {
+             case .success (let value):
+                 let code = response.response?.statusCode ?? 0
+                 if (code == 200) {
+                     let jsonResp = JSON(value)
+                     if let challenge = jsonResp["challenge"].string {
+                         self.signChallengeAndRespond2 (challenge: challenge)
+                     } else {
+                         NSLog("no challenge in respone to did auth initiate")
+                         self.calypsoSendFailed=true
+                     }
+                 }
+             case .failure (let error):
+                 self.calypsoSendFailed = true
+                 let msg = error.localizedDescription
+                 NSLog(msg)
+             }  // end of switch
+         } // end of response
+    }
+    
+    private func signChallengeAndRespond2 (challenge: String) {
+        let signature = cryptoCore.sign(message: challenge, whichDid: CryptoCore.DIDSelector.useAgentDid)
+        var respJson = JSON()
+        respJson["challenge"].string = challenge
+        respJson["signedChallenge"].string = signature
+        respJson["keyId"].string = cryptoCore.agentDidGuid!+"#key-1"
+        respJson["did"].string = cryptoCore.agentDidGuid!
+        respJson["verifiableCredentials"].arrayObject = []
+        
+        let didAuthChallengeRespUrl = RELAY_URL + DID_AUTH_CHALLENGE_RESPONSE_CONTEXT
+        var request = URLRequest(url: URL (string: didAuthChallengeRespUrl)!)
+        request.httpMethod = HTTPMethod.post.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        let message = respJson.rawString()!
+        let dataMessage = (message.data(using: .utf8))! as Data
+        request.httpBody = dataMessage
+        
+        AF.request(request).responseJSON { response in
+            switch response.result {
+            case .success (let value):
+                let code = response.response?.statusCode ?? 0
+                if (code == 200) {
+                    let jsonResp = JSON(value)
+                    if let accessToken = jsonResp["token"].string {
+                        print (accessToken)
+                        self.withTokenInHandReceiveCalypsoMessages(accessToken: accessToken)
+                    } else {
+                        NSLog("NO token in challenge response")
+                        self.calypsoSendFailed=true
+                    }
+                }
+            case .failure (let error):
+                self.calypsoSendFailed = true
+                let msg = error.localizedDescription
+                NSLog(msg)
+            }  // end of switch
+        } // end of response
+    }
+    
+    private func withTokenInHandReceiveCalypsoMessages(accessToken: String) {
+        let url = RELAY_URL + SEND_CALYPSO_CONTEXT
+        var request = URLRequest(url: URL (string: url)!)
+        request.httpMethod = HTTPMethod.get.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("Bearer " + accessToken, forHTTPHeaderField: "Authorization")
+        
+        AF.request(request).responseJSON { response in
+            switch response.result {
+            case .success (let value):
+                let code = response.response?.statusCode ?? 0
+                if (code == 200) {
+                    let jsonResp = JSON(value)
+                    let creds = jsonResp["messages"].array
+                    for cred in creds! {
+                        let encryptedCredential = cred["encryptedCredential"].string
+                        let key = cred["key"].string
+                        let iv = cred["iv"].string
+                        if (encryptedCredential != nil) && (key != nil) && (iv != nil) {
+                            if let jwc = self.decryptCalypsoCipheredVerifiableCredential(encryptedCredential: encryptedCredential!, key: key!, iv: iv!) {
+                                self.addCredentialToWallet(jwc: jwc)
+                            }
+                        }
+                    }
+                }
+            case .failure (let error):
+                self.calypsoSendFailed = true
+                let msg = error.localizedDescription
+                NSLog(msg)
+            }  // end of switch
+        } // end of response
+    }
+    
     public func createAndSendCalypso2Message(targetDid: String, relayUrl: String, message: String) throws {
         guard let resp = try? cryptoCore.encryptWithAES(message: message) else {
             NSLog("cipher message failed")
             throw CalypsoError.unableToCipherMessage
         }
         // get the targetDidDoc
-        NSLog("GET: target did")
+        if (targetDid != cryptoCore.agentDidGuid   ) {
+            print("error")
+        }
+        NSLog("GET: target did of \(targetDid)")
         let url: String = baseUrl+"v4/operations/did?DID="+targetDid
         let headers: HTTPHeaders = ["Accept": "application/json"]
         AF.request(url, headers: headers).responseJSON{ response in
@@ -139,15 +286,12 @@ open class Engine {
                     } else {
                         //  public func encryptAESKeyWithECPubKey (AESKey: String?, ECPublicKey: String) -> String? {
                         
-                        if let finalKey = self.cryptoCore.encryptAESKeyWithRSAVerifPubKey(aesKey: resp.0, rsaPublicKey: pubKeyPem) {
+                        if let finalKey = self.cryptoCore.encryptWithPublicKey (message: resp.0, rsaPublicKey: pubKeyPem) {
                             try? self.sendCalypso2Message(targetDid: targetDid, relayUrl: relayUrl, key: finalKey, iv: resp.1!, cipheredMessage: resp.2!)
                         }
                     }
-                    // now with the target did in hand, we use
-                    print("dd")
                 } else {
-                    self.state!["fbDid"]="FB Did Error"
-                    self.networkFailed=true;
+                    self.calypsoSendFailed = true
                     Timer.scheduledTimer (timeInterval: self.TIMER_VALUE, target: self, selector: #selector(self.getFbDidDoc), userInfo: nil, repeats: false)
                 }
             case .failure (let error):
@@ -156,7 +300,83 @@ open class Engine {
             }
         }
     }
-     
+    
+    private func processCalypso2Message(message: String) {
+        guard let data = message.data(using: .utf8) else {
+            NSLog("raw string to data failed")
+            return
+        }
+    
+
+        guard let jsonMessage = try? JSON(data: data) else {
+            NSLog("cant make json object")
+            return;
+        }
+        
+        guard let version = jsonMessage["version"].string else {
+            NSLog("pre 2.0 calypso message received")
+            NSLog("TODO - process 1.0 message")
+            return
+        }
+        if version != "2.0.0" {
+            NSLog("message not 2.0.0 compliant - aborting")
+            return
+        }
+        
+        // now we know we have a v2.0.0 calypso message - make sure the message is addressed to me
+        guard let targetDid = jsonMessage["targetDid"].string else {
+            NSLog("targetDid is missing")
+            return
+        }
+        if targetDid != agentDidDoc?.did {
+            NSLog("Calypso message was addressed to \(targetDid) but my did is \(agentDidDoc?.did ?? "unknown")")
+            return
+        }
+        
+        // now lets get the encrypted Key, decrypt it into a useable key
+        guard let encryptedKey = jsonMessage["key"].string else {
+            NSLog("encrypted key not found")
+            return
+        }
+        guard let aesKey = decryptCalypsoAESKey(encryptedKey: encryptedKey) else {
+            NSLog("unable to decrypt key")
+            return
+        }
+        
+        // get the iv
+        guard let iv = jsonMessage["iv"].string else {
+            NSLog("no iv")
+            return
+        }
+        
+        // lastly get the VC, decrypt it into a JWC form
+        guard let encryptedCredential = jsonMessage["encryptedCredential"].string else {
+            NSLog("no encrypted credential")
+            return
+        }
+        guard let jwc = decryptCalypsoCipheredVerifiableCredential(encryptedCredential: encryptedCredential, key: aesKey, iv: iv) else {
+            NSLog("Unable to decrypt VC")
+            return
+        }
+        // and add the VC to the wallet
+        self.addCredentialToWallet(jwc: jwc)
+    }
+    
+    private func decryptCalypsoAESKey (encryptedKey: String) -> String? {
+        let k = cryptoCore.decryptWithAgentPrivateKey (message: encryptedKey)
+        return k
+    }
+    
+    private func decryptCalypsoCipheredVerifiableCredential (encryptedCredential: String, key: String, iv: String) -> String? {
+        if let aesKeyInTheClear = cryptoCore.decryptWithAgentPrivateKey(message: key) {
+            let jwc = cryptoCore.decryptWithAes(key: aesKeyInTheClear, iv: iv, cipherText: encryptedCredential)
+            return jwc
+        } else {
+            NSLog("ERROR - unable to decrypt aes key")
+            return nil
+        }
+    }
+    
     /*
         calypso message parts are as follows:
      
@@ -168,43 +388,135 @@ open class Engine {
      
      */
     private func sendCalypso2Message(targetDid: String, relayUrl: String, key: String, iv: String, cipheredMessage: String) throws {
-        var payload = JSON()
-        payload["version"].string = "2.0.0"
-        payload["targetDid"].string = targetDid
-        payload["key"].string = key
-        payload["iv"].string = iv
-        payload["payload"].string = cipheredMessage
-        let rawMessage =  payload.rawString()
-        
-        // need to read for the did of the target, to get their pub key
-        NSLog("POST: CALYPSO relay")
-        let dataMessage: Data = rawMessage!.data(using: .utf8)!
-        //let headers: HTTPHeaders = ["Accept": "application/json"]
-        var request = URLRequest(url: URL(string: relayUrl)!)
-        request.httpMethod = HTTPMethod.post.rawValue
+        //  first we have to get a DID auth token -- then with the token in hand we can then post the calypso
+        //  so to start off with, we do a did initiate to ask for a token:
+        let didAuthInitUrl = relayUrl + DID_AUTH_INITIATE_CONTEXT
+        var request = URLRequest(url: URL (string: didAuthInitUrl)!)
+        request.httpMethod = HTTPMethod.get.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.httpBody = dataMessage
         
         AF.request(request).responseJSON { response in
             switch response.result {
-            case .success(let value):
+            case .success (let value):
                 let code = response.response?.statusCode ?? 0
-                if (code == 210) {
-                    NSLog("CALYPSO post worked aok")
-                    
-                    // now send the message to the relay
-                    NSLog("SEND message to relay")
-                } else {
-                    NSLog("TODO - target did not post \(code)")
-                    self.calypsoSendFailed = true
+                if (code == 200) {
+                    let jsonResp = JSON(value)
+                    if let challenge = jsonResp["challenge"].string {
+                        self.signChallengeAndRespond (challenge: challenge, targetDid: targetDid, relayUrl: relayUrl, key: key, iv: iv, cipheredMessage: cipheredMessage)
+                    } else {
+                        NSLog("no challenge in respone to did auth initiate")
+                        self.calypsoSendFailed=true
+                    }
                 }
             case .failure (let error):
                 self.calypsoSendFailed = true
                 let msg = error.localizedDescription
                 NSLog(msg)
+            }  // end of switch
+        } // end of response
+         
+       
+    }
+    
+    /*
+     {
+         "challenge": "e5732e33-377d-4c56-a751-d60a0c6fac23",
+         "signedChallenge": "MEYCIQDf3alJs5_3edxFLx7FQ1fW7cDHaKiJR9jUaEPoIhJVFQIhAIsodEcSZkLi9uchB3ck9LfLQm8WprbAamFeciQCeSnq",
+         "keyId": "did:fb:2ec7bc44-60d5-483a-ba60-e64b118bacbf#key-1",
+         "did": "did:fb:2ec7bc44-60d5-483a-ba60-e64b118bacbf",
+         "verifiableCredentials": []
+     }
+    
+     */
+    
+    
+    private func signChallengeAndRespond(challenge: String, targetDid: String, relayUrl: String, key: String, iv: String, cipheredMessage: String) {
+        let signature = cryptoCore.sign(message: challenge, whichDid: CryptoCore.DIDSelector.useAgentDid)
+        var respJson = JSON()
+        respJson["challenge"].string = challenge
+        respJson["signedChallenge"].string = signature
+        respJson["keyId"].string = cryptoCore.agentDidGuid!+"#key-1"
+        respJson["did"].string = cryptoCore.agentDidGuid!
+        respJson["verifiableCredentials"].arrayObject = []
+        
+        let didAuthChallengeRespUrl = relayUrl + DID_AUTH_CHALLENGE_RESPONSE_CONTEXT
+        var request = URLRequest(url: URL (string: didAuthChallengeRespUrl)!)
+        request.httpMethod = HTTPMethod.post.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        let message = respJson.rawString()!
+        let dataMessage = (message.data(using: .utf8))! as Data
+        request.httpBody = dataMessage
+        
+        AF.request(request).responseJSON { response in
+            switch response.result {
+            case .success (let value):
+                let code = response.response?.statusCode ?? 0
+                if (code == 200) {
+                    let jsonResp = JSON(value)
+                    if let accessToken = jsonResp["token"].string {
+                        self.withTokenInHandSendCalypsoMessage (accessToken: accessToken, targetDid: targetDid,  relayUrl: relayUrl, key: key, iv: iv, cipheredMessage: cipheredMessage)
+                    } else {
+                        NSLog("NO token in challenge response")
+                        self.calypsoSendFailed=true
+                    }
+                }
+            case .failure (let error):
+                self.calypsoSendFailed = true
+                let msg = error.localizedDescription
+                NSLog(msg)
+            }  // end of switch
+        } // end of response
+    }
+    
+    private func withTokenInHandSendCalypsoMessage(accessToken: String, targetDid: String, relayUrl: String, key: String, iv: String, cipheredMessage: String) {
+        var payload = JSON()
+        payload["version"].string = "2.0.0"
+        payload["targetDid"].string = targetDid
+        payload["key"].string = key
+        payload["iv"].string = iv
+        payload["encryptedCredential"].string = cipheredMessage
+        let rawMessage =  payload.rawString()
+        
+        
+        let clear = test2 (key: key, iv: iv, message: cipheredMessage)
+        
+        // need to read for the did of the target, to get their pub key
+        NSLog("POST: CALYPSO relay")
+        let dataMessage: Data = rawMessage!.data(using: .utf8)!
+        //let headers: HTTPHeaders = ["Accept": "application/json"]
+        let finalUrl = relayUrl + SEND_CALYPSO_CONTEXT
+        var request = URLRequest(url: URL(string: finalUrl)!)
+        request.httpMethod = HTTPMethod.post.rawValue
+        request.setValue("Bearer "+accessToken, forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.httpBody = dataMessage
+               
+               // Decode the Message Temporarily
+              // processCalypso2Message(message: rawMessage!)
+               
+               
+        AF.request(request).responseJSON { response in
+            switch response.result {
+                case .success(let value):
+                    let code = response.response?.statusCode ?? 0
+                    if (code == 201) {
+                        NSLog("CALYPSO post worked aok")
+                           
+                        NSLog("SEND message to relay")
+                    } else {
+                        NSLog("TODO - target did not post \(code)")
+                        self.calypsoSendFailed = true
+                    }
+                case .failure (let error):
+                    self.calypsoSendFailed = true
+                    let msg = error.localizedDescription
+                    NSLog(msg)
             }
         }
+        
     }
     
     public func getMyDidDoc() -> DidDocument? {

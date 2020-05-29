@@ -255,7 +255,7 @@
         <!--Subject-->
         <scene sceneID="bb8-nZ-NfF">
             <objects>
-                <viewController id="LhF-ol-YyP" sceneMemberID="viewController">
+                <viewController id="LhF-ol-YyP" customClass="SubjectLandingPageViewController" customModule="Raptor_Example" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="sNh-5p-Rp7"/>
                         <viewControllerLayoutGuide type="bottom" id="RAG-GX-YWl"/>
@@ -282,6 +282,14 @@
                                 <state key="normal" title="Tap Here to Scan Venue QR Code"/>
                                 <connections>
                                     <segue destination="old-VY-YRg" kind="presentation" id="e5T-px-Pwx"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tlt-Fv-sUo">
+                                <rect key="frame" x="144" y="338" width="53" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="calypso"/>
+                                <connections>
+                                    <action selector="calypsoClicked:" destination="LhF-ol-YyP" eventType="touchUpInside" id="qn2-rK-6s1"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -537,7 +545,7 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="WyU-uw-i3v"/>
-        <segue reference="Iud-6Q-wsX"/>
+        <segue reference="kVg-tr-G8M"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="hammer" catalog="system" width="128" height="115"/>

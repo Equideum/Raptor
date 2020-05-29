@@ -20,9 +20,11 @@ class RelyingPartyDIDDisplayViewController: UIViewController {
         var k = JSON()
         k["did"].string = raptor.getMyDidDoc()?.did
         k["relayUrl"].string = "https://relay.fhirblocks.io/joesbar"
-        var t = k.rawString()
+        let t = k.rawString()
         
         qrCode.image = generateQRCode(from: t!)
+        
+        
     }
 
     private func generateQRCode(from: String) -> UIImage? {

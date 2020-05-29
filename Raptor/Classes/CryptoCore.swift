@@ -113,7 +113,7 @@ public class CryptoCore {
             NSLog ("unable to remove key - ec priv agent")
         }
         let agentECPubKeyStatus =       deleteKey(keyTag: AGENT_EC_PUBLIC_KEY_TAG, keyType: kSecAttrKeyTypeEC as String)
-        if (!agentECPrivKeyStatus) {
+        if (!agentECPubKeyStatus) {
             NSLog ("unable to remove key - ec pub agent")
         }
         
@@ -170,37 +170,39 @@ public class CryptoCore {
             return finalAnswer
         }
     }
-    
-    public func createAESKey() throws -> String {
-        let password = randomData(length: 64)
-        let salt = randomData(length: 8)
-        let length = kCCKeySizeAES256
-        var status = Int32(0)
-        var derivedBytes = [UInt8] (repeating: 0, count: length)
-        password.withUnsafeBytes { (passwordBytes: UnsafePointer<Int8>!) in
-            salt.withUnsafeBytes { (saltBytes: UnsafePointer<UInt8>!) in
-                status = CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2), passwordBytes, password.count, saltBytes, salt.count, CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA1), 10000, &derivedBytes, length)
-            }
+     
+     
+    public func decryptWithAgentPrivateKey (message: String) -> String?  {
+        NSLog("decrypt calypso message w agent priv key for did \(agentDidGuid ?? "")")
+        if let decodedMessageAsData = NSData(base64Encoded: message, options: .ignoreUnknownCharacters) {
+            let cipherBytes = [UInt8](decodedMessageAsData as Data)
+            var blockSize = Int(SecKeyGetBlockSize(agentRSAVerifPrivateKeyHandle!))
+            var clearTextMessage = [UInt8](repeating:0, count:Int(blockSize))
+            var status: OSStatus!
+             
+            status = SecKeyDecrypt(agentRSAVerifPrivateKeyHandle!, SecPadding.PKCS1,
+                                cipherBytes,   blockSize,
+                                &clearTextMessage,  &blockSize)
             
+            if status != noErr {
+                let msg = SecCopyErrorMessageString(status, nil)
+                NSLog("unable to use private key to decrypt \(status ?? 999) - \(msg ?? "" as CFString)")
+                return nil
+            }
+            let data = Data.init(bytes: clearTextMessage)
+            var clearText = String(decoding: data, as: UTF8.self)
+            clearText = clearText.replacingOccurrences(of: "\0", with: "")
+            return clearText
         }
-        guard status == 0 else {
-            throw AESError.keyGeneration(status: Int(status))
-        }
-        let key = Data(bytes: UnsafePointer<UInt8>(derivedBytes), count: length).base64EncodedString()
-        return key
+        return nil
     }
     
-    public func createIV() -> String? {
-        let r: Data = randomData(length: kCCBlockSizeAES128)
-        let k = r.base64EncodedString()
-        return k
-    }
+ 
+
     
-    /*
-        REMEMBER - EC pub key is base 58 encoded! and is a pem!
-     */
-    
-    public func encryptAESKeyWithRSAVerifPubKey (aesKey: String?, rsaPublicKey: String) -> String? {
+    public func encryptWithPublicKey (message: String?, rsaPublicKey: String) -> String? {
+        let msg = message
+        print("initial clear text \(msg ?? "")")
         var workingKeyStrg = rsaPublicKey
         workingKeyStrg = workingKeyStrg.replacingOccurrences(of: "-----BEGIN RSA PUBLIC KEY-----", with: "")
         workingKeyStrg = workingKeyStrg.replacingOccurrences(of: "-----END RSA PUBLIC KEY-----", with: "")
@@ -214,62 +216,96 @@ public class CryptoCore {
             kSecAttrKeySizeInBits as String: RSA_KEY_SIZE
         ]
         var error: Unmanaged<CFError>?
-        
         let pubKey = SecKeyCreateWithData(Data.init (bytes: keyData!) as CFData, keyDict as CFDictionary, &error)
-
         let blockSize = SecKeyGetBlockSize(pubKey!)
-        
         var status: OSStatus!
-     
         var messageEncrypted = [UInt8](repeating: 0, count: blockSize)
         var messageEncryptedSize = blockSize
 
         status = SecKeyEncrypt( pubKey!,
                                SecPadding.PKCS1,
-                               aesKey!,
-                               aesKey!.characters.count,
+                               msg!,
+                               msg!.count,
                                &messageEncrypted,
                                &messageEncryptedSize)
 
-        
-        
         if status != noErr {
-            NSLog("error in ec2 encrypt \(status.debugDescription)")
-            let d = SecCopyErrorMessageString(status, nil)
-            
+            let msg = SecCopyErrorMessageString(status, nil)
+            NSLog("unable to use public key to encrypt \(status ?? 999) - \(msg ?? "" as CFString)")
             return nil
         }
+
         let data = Data.init(bytes: messageEncrypted)
         let encryptedBase64 = data.base64EncodedString()
+        print ("ciphered aes key \(encryptedBase64)")
         return encryptedBase64
     }
     
-    public func encryptWithAES (message: String) throws -> (String?, String?, String?) {
-        let keyScratchPad = randomData(length: 32).base64EncodedString()
-        let ivScratchPad = randomData(length: 64).base64EncodedString()
-        let key = String(keyScratchPad.prefix(32))
-        let iv = String(ivScratchPad.prefix(16))
+ 
+    public func decryptWithAes (key: String, iv: String, cipherText: String) -> String? {
+        let dKey = Data.init(base64Encoded: key)!
+        let dIv = Data.init(base64Encoded: iv)!
+        let msg = Data.init(base64Encoded: cipherText)!
+        let decryptedData = AESCrypt(message: msg, key: dKey, iv: dIv, operation: kCCDecrypt)
         
-        // new approach
-        do {
-            let encryptedBytes = try AES (key: key, iv: iv, padding: .pkcs7).encrypt([UInt8](message.data(using: .utf8)!))
-            let  cipherTextAsBase64 = Data(encryptedBytes).base64EncodedString()
-            return (key,iv,cipherTextAsBase64)
-
-            // now unwind what we did and decrypt it
-            /*
-            guard let data = Data(base64Encoded: cipherTextAsBase64) else { return ""}
-            let decryptedBytes = try AES(key: String(key), iv: String(iv), padding: .pkcs7).decrypt([UInt8](data))
-            let clear = String (bytes: decryptedBytes, encoding: .utf8)
-                
-            print(clear!)
-            */
-        } catch {
-            print (error)
-            return (nil,nil,nil)
-        }
-      
+        var clearText = String(decoding: decryptedData, as: UTF8.self)
+        clearText = clearText.replacingOccurrences(of: "\0", with: "")
+        print ("final message in the clear \(clearText)")
+        return clearText
     }
+    
+ 
+    
+    public func encryptWithAES (message: String) throws -> (String?, String?, String?) {
+        print ("encrypt \(message)")
+        if let clearData = message.data(using: .utf8) {
+            let key = randomData(length: 32)
+            let iv = randomData(length: 16)
+ 
+            
+            let encryptedData = AESCrypt(message: clearData, key: key, iv: iv, operation: kCCEncrypt)
+        
+            // return the key, iv, and ciphertext all as b64 string
+            let keyB64: String? = key.base64EncodedString()
+            let ivb64: String? = iv.base64EncodedString()
+            let cipherTextb64: String? = encryptedData.base64EncodedString()
+            return (keyB64, ivb64, cipherTextb64)
+        } else {
+            NSLog("unable to convert message to data \(message)")
+            return (nil, nil, nil)
+        }
+        
+    }
+    
+    private func AESCrypt(message: Data, key:Data, iv:Data, operation:Int) -> Data {
+        let cryptLength  = size_t(message.count + kCCBlockSizeAES128)
+        var cryptData = Data(count:cryptLength)
+        let keyLength = size_t(kCCKeySizeAES256)
+        let options   = CCOptions(kCCOptionECBMode | kCCOptionPKCS7Padding)
+      
+      
+        var numBytesEncrypted :size_t = 0
+      
+        let cryptStatus: CCCryptorStatus = cryptData.withUnsafeMutableBytes {cryptBytes in
+            message.withUnsafeBytes {dataBytes in
+                iv.withUnsafeBytes {ivBytes in
+                    key.withUnsafeBytes {keyBytes in
+                        CCCrypt(CCOperation(operation), CCAlgorithm(kCCAlgorithmAES), options, keyBytes, keyLength,
+                                ivBytes, dataBytes, message.count, cryptBytes, cryptLength, &numBytesEncrypted)
+                        }
+                    }
+            }
+        }
+        NSLog(cryptStatus.description)
+        if (cryptStatus == kCCSuccess) {
+        cryptData.removeSubrange(numBytesEncrypted..<cryptData.count)
+      } else {
+            NSLog("Error with AES: \(cryptStatus)")
+            NSLog(SecCopyErrorMessageString( cryptStatus, nil) as! String)
+      }
+      return cryptData;
+    }
+    
     
     private func randomData(length: Int) -> Data {
         var data = Data(count: length)
@@ -281,7 +317,7 @@ public class CryptoCore {
     }
     
     private func deleteKey(keyTag: String, keyType: String) -> Bool {
-        var query: [String: Any] = [
+        let query: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecAttrApplicationTag as String: keyTag.data(using: .utf8)!,
             kSecAttrKeyType as String: keyType,
@@ -659,7 +695,7 @@ public extension String {
 
 public extension Data {
 
-    public init?(base58Decoding string: String, alphabet: [UInt8] = Base58String.btcAlphabet) {
+    init?(base58Decoding string: String, alphabet: [UInt8] = Base58String.btcAlphabet) {
         var answer = BigUInt(0)
         var j = BigUInt(1)
         let radix = BigUInt(alphabet.count)
